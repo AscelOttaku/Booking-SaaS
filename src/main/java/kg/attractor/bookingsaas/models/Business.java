@@ -1,0 +1,37 @@
+package kg.attractor.bookingsaas.models;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "bussines")
+public class Business {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT now()", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT now()")
+    private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "business")
+    private List<Service> services;
+}
