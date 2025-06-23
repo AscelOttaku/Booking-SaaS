@@ -1,11 +1,25 @@
 package kg.attractor.bookingsaas.models;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @Entity
+@Setter
+@Getter
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false)
@@ -20,11 +34,14 @@ public class User {
     @Column(name = "middle_name", length = 100)
     private String middleName;
 
+    @Column(name = "password", length = 100)
+    private String password;
+
     @Column(name = "phone", nullable = false, length = 20)
     private String phone;
 
     @Column(name = "birthday")
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
@@ -32,4 +49,22 @@ public class User {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<SimpleGrantedAuthority> simpleGrantedAuthorities =
+                new ArrayList<>(Collections.singleton(new SimpleGrantedAuthority(role.getRoleName().name())));
+        simpleGrantedAuthorities.add(new SimpleGrantedAuthority(role.getAuthority().getName()));
+        return simpleGrantedAuthorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
 }
