@@ -25,10 +25,11 @@ CREATE TABLE role (
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     first_name VARCHAR(100),
+    password VARCHAR(100),
     last_name VARCHAR(100),
     middle_name VARCHAR(100),
     phone VARCHAR(20),
-    birthday TIMESTAMP,
+    birthday DATE,
     email VARCHAR(100) NOT NULL UNIQUE,
     role_id BIGINT,
     CONSTRAINT fk_user_role FOREIGN KEY (role_id) REFERENCES role(id)

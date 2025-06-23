@@ -1,6 +1,7 @@
 package kg.attractor.bookingsaas.models;
 
 import jakarta.persistence.*;
+import kg.attractor.bookingsaas.enums.RoleEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +16,8 @@ public class Role {
     private Long id;
 
     @Column(name = "role_name", nullable = false)
-    private String roleName;
+    @Enumerated(EnumType.STRING)
+    private RoleEnum roleName;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "authority_id")
