@@ -43,15 +43,15 @@ public class User implements UserDetails {
     private String email;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @Column(name = "logo")
+    private String logo;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(
-                new SimpleGrantedAuthority(role.getRoleName().name()),
-                new SimpleGrantedAuthority(role.getAuthority().getName())
-        );
+        return List.of(new SimpleGrantedAuthority(role.getRoleName().name()));
     }
 
     @Override

@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -40,14 +42,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         users.setPhone(request.getPhone());
         users.setBirthday(request.getBirthday());
         users.setEmail(request.getEmail());
-        users.setRole(roleRepository.findByRoleName(request.getRoleName()));
+        users.setRole(roleRepository.findByRoleName(request.getRoleName())
+                .orElseThrow(() -> new NoSuchElementException("role not found by name " + request.getRoleName())));
 
         userRepository.save(users);
 
         String jwtToken = jwtService.generateToken(users.getEmail());
         log.info("Пользователь с почтой {} успешно зарегистрирован", request.getEmail());
 
-        return new AuthenticationResponse(jwtToken, users.getFirstName(), users.getRole().getRoleName());
+        return new AuthenticationResponse(jwtToken, users.getEmail(), users.getRole().getRoleName());
     }
 
     @Override
@@ -64,6 +67,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String jwtToken = jwtService.generateToken(user.getEmail());
         log.info("Пользователь с почтой {} успешно вошел в систему", signInRequest.getEmail());
-        return new AuthenticationResponse(jwtToken, user.getFirstName(), user.getRole().getRoleName());
+        return new AuthenticationResponse(jwtToken, user.getEmail(), user.getRole().getRoleName());
     }
 }

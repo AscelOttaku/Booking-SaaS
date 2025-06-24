@@ -34,4 +34,14 @@ public class Business {
 
     @OneToMany(mappedBy = "business")
     private List<Service> services;
+
+    @PrePersist
+    public void setCreatedAt() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void setUpdatedAt() {
+        updatedAt = LocalDateTime.now();
+    }
 }

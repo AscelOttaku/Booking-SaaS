@@ -3,7 +3,7 @@ spring:
     name: booking-saas
 
   jwt:
-    secret_key: AyazchikSuperKeyB0.1
+    secret_key: some-long-secret-string-at-least-64-chars-1234567890abcdef1234567890abcdef
 
   datasource:
     url: jdbc:postgresql://localhost:5432/booking_saas

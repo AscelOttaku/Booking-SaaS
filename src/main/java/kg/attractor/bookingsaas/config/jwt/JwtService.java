@@ -1,9 +1,8 @@
 package kg.attractor.bookingsaas.config.jwt;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -24,11 +24,13 @@ public class JwtService {
     private String SECRET_KEY;
 
     public String generateToken(String email) {
-        return JWT.create()
-                .withClaim("email", email)
-                .withIssuedAt(new Date())
-                .withExpiresAt(Date.from(ZonedDateTime.now().plusWeeks(3).toInstant()))
-                .sign(Algorithm.HMAC512(SECRET_KEY));
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(Date.from(ZonedDateTime.now().plusWeeks(3).toInstant()))
+                .signWith(getSigningKey())
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .compact();
     }
 
     public boolean validateToken(String token, UserDetails user) {
@@ -45,8 +47,8 @@ public class JwtService {
     }
 
     private Key getSigningKey() {
-        byte[] array = Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(array);
+        byte[] keyBytes = SECRET_KEY.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String extractUserEmail(String token) {
