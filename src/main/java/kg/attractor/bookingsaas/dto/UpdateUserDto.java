@@ -1,17 +1,26 @@
-package kg.attractor.bookingsaas.dto.auth;
+package kg.attractor.bookingsaas.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import kg.attractor.bookingsaas.annotations.UniqueUserEmail;
-import kg.attractor.bookingsaas.annotations.UniqueUserPhoneNumber;
-import lombok.Data;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
-@Data
-@Schema(description = "Запрос на регистрацию пользователя")
-public class SignUpRequest {
+@Getter
+@Setter
+@Builder
+public class UpdateUserDto {
+    @Schema(description = "user id", example = "1")
+    @NotNull(message = "id must not be null")
+    @Positive(message = "id must be positive")
+    private Long id;
+
     @Schema(description = "Имя пользователя", example = "johndoe")
     @NotBlank
     private String firstName;
@@ -33,17 +42,6 @@ public class SignUpRequest {
     @JsonFormat(pattern = "dd.MM.yyyy")
     private LocalDate birthday;
 
-    @Schema(description = "Email пользователя", example = "john@example.com")
-    @NotBlank
-    @UniqueUserEmail(message = "Email should be unique")
-    private String email;
-
-    @Schema(description = "Пароль пользователя", example = "password123")
-    @NotBlank
-    @UniqueUserPhoneNumber(message = "Phone Number should be unique")
-    private String password;
-
-    @Schema(description = "Роль пользователя", example = "CLIENT")
-    @NotBlank(message = "Blank roleName")
-    private String roleName;
+    @Schema(description = "Image file")
+    private MultipartFile image;
 }
