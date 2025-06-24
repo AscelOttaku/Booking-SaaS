@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,4 +22,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findUserByPhone(String phoneNumber);
 
     Optional<User> findUserById(Long id);
+
+    @Query("select u from User u " +
+            "join Book b on u.id = b.user.id " +
+            "join Service s on b.services.id in s.id " +
+            "join Business bs on s.business.id = bs.id " +
+            "where bs.id = :businessId")
+    List<User> findUsersByBusinessId(Long businessId);
 }

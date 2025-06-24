@@ -1,7 +1,7 @@
 package kg.attractor.bookingsaas.service.impl;
 
 import kg.attractor.bookingsaas.dto.ServiceDto;
-import kg.attractor.bookingsaas.dto.impl.ServiceMapper;
+import kg.attractor.bookingsaas.dto.mapper.impl.ServiceMapper;
 import kg.attractor.bookingsaas.models.Service;
 import kg.attractor.bookingsaas.repository.ServiceRepository;
 import kg.attractor.bookingsaas.service.BusinessService;
@@ -11,13 +11,14 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
+
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
 public class ServiceServiceImpl implements ServiceService {
     private final ServiceRepository serviceRepository;
     private final BusinessService businessService;
     private final ServiceMapper serviceMapper;
-
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
@@ -37,5 +38,14 @@ public class ServiceServiceImpl implements ServiceService {
         serviceMapper.updateModelFromDto(dto, existingService);
         existingService.getBooks().forEach(book -> book.setServices(existingService));
         return serviceMapper.mapToDto(serviceRepository.save(existingService));
+    }
+
+    @Override
+    public ServiceDto deleteServiceById(Long serviceId) {
+        var service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new NoSuchElementException("Service not found " + serviceId));
+
+        serviceRepository.delete(service);
+        return serviceMapper.mapToDto(service);
     }
 }

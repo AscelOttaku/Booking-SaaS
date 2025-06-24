@@ -1,4 +1,4 @@
-package kg.attractor.bookingsaas.dto.impl;
+package kg.attractor.bookingsaas.dto.mapper.impl;
 
 import kg.attractor.bookingsaas.dto.BookDto;
 import kg.attractor.bookingsaas.models.Book;
@@ -14,7 +14,6 @@ public class BookMapper {
             return null;
         }
         BookDto dto = new BookDto();
-        dto.setId(book.getId());
         dto.setStartedAt(book.getStartedAt());
         dto.setFinishedAt(book.getFinishedAt());
         return dto;
@@ -25,7 +24,6 @@ public class BookMapper {
             return null;
         }
         Book book = new Book();
-        book.setId(dto.getId());
         dto.setStartedAt(book.getStartedAt());
         dto.setFinishedAt(book.getFinishedAt());
         return book;

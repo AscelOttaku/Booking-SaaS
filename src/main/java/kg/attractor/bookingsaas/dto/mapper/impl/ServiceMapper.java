@@ -1,4 +1,4 @@
-package kg.attractor.bookingsaas.dto.impl;
+package kg.attractor.bookingsaas.dto.mapper.impl;
 
 import kg.attractor.bookingsaas.dto.ServiceDto;
 import org.springframework.stereotype.Service;
