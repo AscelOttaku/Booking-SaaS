@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -47,14 +48,16 @@ public class UserServiceImpl implements UserService {
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public UpdateUserDto updateUser(UpdateUserDto updateUserDto) throws IOException {
-        User user = userRepository.findUserById(updateUserDto.getId());
+        User user = userRepository.findUserById(updateUserDto.getId())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        var authUser = getAuthUser();
+        if (!authUser.getId().equals(user.getId()))
+            throw new IllegalArgumentException("Auth user " + authUser.getFirstName() + " cannot update " + updateUserDto.getFirstName());
 
         if (updateUserDto.getImage() != null) {
-            if (user.getLogo() != null) {
-                FileUtil.deleteFile(user.getLogo());
-                uploadUserFile(updateUserDto.getImage(), user);
-            } else
-                uploadUserFile(updateUserDto.getImage(), user);
+            FileUtil.deleteFile(user.getLogo());
+            uploadUserFile(updateUserDto.getImage(), user);
         }
         updateUserMapper.updateUser(user, updateUserDto);
         return updateUserMapper.mapToDto(user);

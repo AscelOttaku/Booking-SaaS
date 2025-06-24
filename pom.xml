@@ -110,7 +110,7 @@
                 <configuration>
                     <url>jdbc:postgresql://localhost:5432/booking_saas</url>
                     <user>postgres</user>
-                    <password>123321</password>
+                    <password>Kanybek12345</password>
                 </configuration>
             </plugin>
             <plugin>

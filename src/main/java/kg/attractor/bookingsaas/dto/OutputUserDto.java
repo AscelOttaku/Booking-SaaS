@@ -9,12 +9,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
-public class OutputUserDto {
-    private String firstName;
-    private String middleName;
-    private String lastName;
-    private String phone;
-    private LocalDate birthday;
+public class OutputUserDto extends UserDto{
     private String email;
     private String imagePath;
     private String roleName;

@@ -26,6 +26,6 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('CLIENT','ADMIN')")
     @GetMapping
     public String greetUser(){
-        return "SWagger is cool";
+        return "Swagger is cool";
     }
 }

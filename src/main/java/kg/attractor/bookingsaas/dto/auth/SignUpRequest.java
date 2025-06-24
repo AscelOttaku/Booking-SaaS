@@ -1,37 +1,17 @@
 package kg.attractor.bookingsaas.dto.auth;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import kg.attractor.bookingsaas.annotations.UniqueUserEmail;
 import kg.attractor.bookingsaas.annotations.UniqueUserPhoneNumber;
-import lombok.Data;
+import kg.attractor.bookingsaas.dto.UserDto;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDate;
-
-@Data
+@Getter
+@Setter
 @Schema(description = "Запрос на регистрацию пользователя")
-public class SignUpRequest {
-    @Schema(description = "Имя пользователя", example = "johndoe")
-    @NotBlank
-    private String firstName;
-
-    @Schema(description = "Отчество пользователя", example = "johndoe")
-    @NotBlank
-    private String middleName;
-
-    @Schema(description = "Фамилия пользователя", example = "johndoe")
-    @NotBlank
-    private String lastName;
-
-    @Schema(description = "телефон пользователя", example = "+996501198751")
-    @NotBlank
-    private String phone;
-
-    @Schema(description = "Дата рождения", example = "08.04.2014")
-    @NotBlank
-    @JsonFormat(pattern = "dd.MM.yyyy")
-    private LocalDate birthday;
+public class SignUpRequest extends UserDto {
 
     @Schema(description = "Email пользователя", example = "john@example.com")
     @NotBlank
