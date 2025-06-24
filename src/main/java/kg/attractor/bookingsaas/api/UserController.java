@@ -16,10 +16,16 @@ import java.io.IOException;
 public class UserController {
     private final UserService userService;
 
-    @PreAuthorize("hasRole('CLIENT') or hasRole('BUSINESS_OWNER')")
+    @PreAuthorize("hasAnyAuthority('CLIENT','ADMIN')")
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public UpdateUserDto updateUser(@Valid @ModelAttribute UpdateUserDto updateUserDto) throws IOException {
         return userService.updateUser(updateUserDto);
+    }
+
+    @PreAuthorize("hasAnyAuthority('CLIENT','ADMIN')")
+    @GetMapping
+    public String greetUser(){
+        return "SWagger is cool";
     }
 }

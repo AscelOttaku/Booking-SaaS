@@ -1,18 +1,21 @@
 package kg.attractor.bookingsaas.config.jwt;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kg.attractor.bookingsaas.repository.UserRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -20,41 +23,44 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private static final String BEARER = "Bearer ";
-    private static final String AUTHORIZATION = "Authorization";
-    private final UserDetailsService authUserDetailsService;
     private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-        final String header = request.getHeader(AUTHORIZATION);
-
-        if (header != null && !header.isBlank() && header.startsWith(BEARER)) {
-            var jwt = header.substring(BEARER.length()).strip();
-            var email = jwtService.extractUserEmail(jwt);
-
-            if (!email.isBlank() &&
-                    SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = authUserDetailsService
-                        .loadUserByUsername(email);
-
-                if (jwtService.validateToken(jwt, userDetails)) {
-                    SecurityContext context = SecurityContextHolder.createEmptyContext();
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()
-                    );
-
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource()
-                            .buildDetails(request));
-                    context.setAuthentication(authenticationToken);
-                    SecurityContextHolder.setContext(context);
+        final String tokenHeader = request.getHeader("Authorization");
+        if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
+            String token = tokenHeader.substring(7);
+            if (StringUtils.hasText(token)) {
+                try {
+                    String email;
+                    try {
+                        email = jwtService.validateToken(token);
+                    } catch (MalformedJwtException e) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+                        return;
+                    } catch (ExpiredJwtException e) {
+                        response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+                        return;
+                    }
+                    String finalEmail = email;
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(finalEmail);
+                    SecurityContextHolder.getContext().setAuthentication(
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails.getUsername(),
+                                    null,
+                                    userDetails.getAuthorities()
+                            ));
+                } catch (JWTVerificationException e) {
+                    response.sendError(
+                            HttpServletResponse.SC_BAD_REQUEST,
+                            "Неправильный токен!");
                 }
             }
         }
         filterChain.doFilter(request, response);
     }
 }
-
