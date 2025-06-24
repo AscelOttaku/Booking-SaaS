@@ -11,4 +11,6 @@ public interface ServiceService {
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     ServiceDto updateService(ServiceDto dto);
+
+    ServiceDto deleteServiceById(Long serviceId);
 }

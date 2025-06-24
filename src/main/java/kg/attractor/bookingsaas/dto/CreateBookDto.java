@@ -13,9 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @DurationBookTimes(durationInSeconds = 600, message = "Duration between startedAt and finishedAt should be more then 10 minutes")
-public class BookDto {
-    private Long id;
-
+public class CreateBookDto {
     @Schema(description = "Service ID", example = "2")
     @NotNull(message = "serviceId must not be null")
     @Positive(message = "serviceId must be positive")

@@ -24,4 +24,10 @@ public class ServiceController {
     public ServiceDto updateService(@Valid ServiceDto dto) {
         return service.updateService(dto);
     }
+
+    @DeleteMapping("{serviceId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ServiceDto deleteService(@PathVariable Long serviceId) {
+        return service.deleteServiceById(serviceId);
+    }
 }
