@@ -1,70 +1,47 @@
 package kg.attractor.bookingsaas.config.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import kg.attractor.bookingsaas.models.User;
+import kg.attractor.bookingsaas.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.function.Function;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class JwtService {
 
+    private final UserRepository userAccountRepository;
+
     @Value("${spring.jwt.secret_key}")
     private String SECRET_KEY;
 
     public String generateToken(String email) {
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(Date.from(ZonedDateTime.now().plusWeeks(3).toInstant()))
-                .signWith(getSigningKey())
-                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
-                .compact();
+        return JWT.create()
+                .withClaim("email", email)
+                .withIssuedAt(new Date())
+                .withExpiresAt(Date.from(ZonedDateTime.now().plusWeeks(3).toInstant()))
+                .sign(Algorithm.HMAC512(SECRET_KEY));
     }
 
-    public boolean validateToken(String token, UserDetails user) {
-        final String email = extractUserEmail(token);
-        return email.equals(user.getUsername()) && !isExpired(token);
+    public String validateToken(String token) {
+        JWTVerifier jwtVerifier = JWT
+                .require(Algorithm.HMAC512(SECRET_KEY))
+                .build();
+        DecodedJWT jwt = jwtVerifier.verify(token);
+        return jwt.getClaim("email").asString();
     }
 
-    private boolean isExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaims(token, Claims::getExpiration);
-    }
-
-    private Key getSigningKey() {
-        byte[] keyBytes = SECRET_KEY.getBytes(StandardCharsets.UTF_8);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    public String extractUserEmail(String token) {
-        return extractClaims(token, Claims::getSubject);
-    }
-
-    private <T> T extractClaims(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+    public Optional<User> getAuthenticationUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userAccountRepository.findByEmail(email);
     }
 }

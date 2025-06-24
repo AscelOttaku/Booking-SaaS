@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/booking_saas
     username: postgres
-    password: Kanybek12345
+    password: 123321
     driver-class-name: org.postgresql.Driver
 
   jpa:
