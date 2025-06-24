@@ -39,4 +39,18 @@ public class ServiceMapper {
         }
         return service;
     }
+
+    public void updateModelFromDto(ServiceDto dto, kg.attractor.bookingsaas.models.Service existingService) {
+        if (dto != null && existingService != null) {
+            existingService.setId(dto.getId());
+            existingService.setServiceName(dto.getServiceName());
+            if (dto.getBooks() != null) {
+                existingService.setBooks(dto.getBooks().stream()
+                        .map(bookMapper::toEntity)
+                        .toList());
+            } else {
+                existingService.setBooks(null);
+            }
+        }
+    }
 }

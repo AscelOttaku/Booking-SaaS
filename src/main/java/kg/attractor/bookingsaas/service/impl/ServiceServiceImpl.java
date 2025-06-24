@@ -27,4 +27,15 @@ public class ServiceServiceImpl implements ServiceService {
         service.getBooks().forEach(book -> book.setServices(service));
         return serviceMapper.mapToDto(serviceRepository.save(service));
     }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    @Override
+    public ServiceDto updateService(ServiceDto dto) {
+        businessService.isBusinessExistById(dto.getBusinessId());
+        Service existingService = serviceRepository.findById(dto.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Service not found"));
+        serviceMapper.updateModelFromDto(dto, existingService);
+        existingService.getBooks().forEach(book -> book.setServices(existingService));
+        return serviceMapper.mapToDto(serviceRepository.save(existingService));
+    }
 }

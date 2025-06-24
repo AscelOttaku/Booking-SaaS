@@ -8,4 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ServiceService {
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     ServiceDto createService(ServiceDto dto);
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    ServiceDto updateService(ServiceDto dto);
 }
