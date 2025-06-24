@@ -1,7 +1,7 @@
 package kg.attractor.bookingsaas.config.security;
 
 
-import kg.attractor.bookingsaas.config.jwt.JwtFilter;
+import kg.attractor.bookingsaas.config.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtFilter jwtFilter;
+    private final JwtAuthenticationFilter jwtFilter;
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
@@ -45,7 +45,7 @@ public class SecurityConfig {
                                         "/api/**"
                                 ).permitAll()
                                 .anyRequest().authenticated()
-                        )
+                )
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

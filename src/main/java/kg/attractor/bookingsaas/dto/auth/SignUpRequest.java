@@ -42,7 +42,7 @@ public class SignUpRequest {
     @Schema(description = "Пароль пользователя", example = "password123")
     @NotBlank
     private String password;
-    @Schema(description = "Роль пользователя", example = "USER")
+    @Schema(description = "Роль пользователя", example = "CLIENT")
     @NotNull
-    private String role;
+    private String roleName;
 }

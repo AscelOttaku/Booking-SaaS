@@ -1,12 +1,3 @@
-DROP TYPE IF EXISTS role_enum;
-
--- Тип роли (ENUM)
-CREATE TYPE role_enum AS ENUM (
-    'CLIENT',
-    'BUSINESS_OWNER',
-    'ADMIN'
-);
-
 -- Таблица AUTHORITY (опционально, если нужен RBAC)
 CREATE TABLE authority (
     id BIGSERIAL PRIMARY KEY,
@@ -16,7 +7,7 @@ CREATE TABLE authority (
 -- Таблица ROLE
 CREATE TABLE role (
     id BIGSERIAL PRIMARY KEY,
-    role_name role_enum NOT NULL,
+    role_name varchar(100) NOT NULL,
     authority_id BIGINT,
     CONSTRAINT fk_role_authority FOREIGN KEY (authority_id) REFERENCES authority(id)
 );

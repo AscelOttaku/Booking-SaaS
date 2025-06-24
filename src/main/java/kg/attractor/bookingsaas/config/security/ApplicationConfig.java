@@ -1,10 +1,8 @@
 package kg.attractor.bookingsaas.config.security;
 
-import kg.attractor.bookingsaas.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -18,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class ApplicationConfig {
-    private final UserRepository userAccountRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {

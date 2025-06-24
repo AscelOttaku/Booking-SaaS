@@ -13,16 +13,17 @@ import kg.attractor.bookingsaas.repository.UserRepository;
 import kg.attractor.bookingsaas.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
-
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public AuthenticationResponse authenticate(SignUpRequest request) {
@@ -35,11 +36,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         users.setFirstName(request.getFirstName());
         users.setLastName(request.getLastName());
         users.setMiddleName(request.getMiddleName());
-        users.setPassword(request.getPassword());
+        users.setPassword(passwordEncoder.encode(request.getPassword()));
         users.setPhone(request.getPhone());
         users.setBirthday(request.getBirthday());
         users.setEmail(request.getEmail());
-        users.setRole(roleRepository.findByRoleName(request.getRole().name()));
+        users.setRole(roleRepository.findByRoleName(request.getRoleName()));
 
         userRepository.save(users);
 
@@ -53,15 +54,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponse signIn(SignInRequest signInRequest) {
         log.info("Идет вход пользователя с почтой: {}", signInRequest.getEmail());
 
-        User user = userRepository.findByEmail(signInRequest.getEmail()).orElseThrow(() -> new NotFoundException("User not found"));
+        User user = userRepository.findByEmail(signInRequest.getEmail())
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
-        if (user == null) {
-            log.warn("Пользователь с почтой {} не найден", signInRequest.getEmail());
-            throw new NotFoundException("User not found");
-        }
-        if (!user.getPassword().equals(signInRequest.getPassword())) {
+        if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())) {
             log.warn("Пароль пользователя с почтой {} не совпадает", signInRequest.getEmail());
-            throw new InvalidPasswordException("П");
+            throw new InvalidPasswordException("Invalid password");
         }
 
         String jwtToken = jwtService.generateToken(user.getEmail());

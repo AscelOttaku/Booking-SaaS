@@ -1,7 +1,6 @@
 package kg.attractor.bookingsaas.models;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,10 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -52,10 +48,10 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> simpleGrantedAuthorities =
-                new ArrayList<>(Collections.singleton(new SimpleGrantedAuthority(role.getRoleName().name())));
-        simpleGrantedAuthorities.add(new SimpleGrantedAuthority(role.getAuthority().getName()));
-        return simpleGrantedAuthorities;
+        return List.of(
+                new SimpleGrantedAuthority(role.getRoleName().name()),
+                new SimpleGrantedAuthority(role.getAuthority().getName())
+        );
     }
 
     @Override
