@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
 @Entity
 @Getter
 @Setter
@@ -23,7 +25,7 @@ public class Service {
     @JoinColumn(name = "bussines_id", nullable = false)
     private Business business;
 
-    @OneToMany(mappedBy = "services")
+    @OneToMany(mappedBy = "services", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private List<Book> books;
 
     @ManyToMany

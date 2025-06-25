@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/booking_saas
     username: postgres
-    password: 123321
+    password: Kanybek12345
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -19,7 +19,7 @@ spring:
   flyway:
     url: jdbc:postgresql://localhost:5432/booking_saas
     user: postgres
-    password: 123321
+    password: Kanybek12345
     locations: classpath:db/migration
     enabled: true
     validate-on-migrate: false

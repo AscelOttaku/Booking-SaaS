@@ -12,6 +12,14 @@ import kg.attractor.bookingsaas.repository.ServiceRepository;
 import kg.attractor.bookingsaas.service.BusinessService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import kg.attractor.bookingsaas.dto.BusinessDto;
+import kg.attractor.bookingsaas.dto.mapper.impl.BusinessMapper;
+import kg.attractor.bookingsaas.models.Business;
+import kg.attractor.bookingsaas.repository.BusinessRepository;
+import kg.attractor.bookingsaas.service.BusinessService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import java.util.NoSuchElementException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +37,9 @@ public class BusinessServiceImpl implements BusinessService {
 
     private final BusinessRepository businessRepository;
     private final ServiceRepository serviceRepository;
+
+    private final BusinessRepository businessRepository;
+    private final BusinessMapper businessMapper;
 
     private User getAuthUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -113,5 +124,18 @@ public class BusinessServiceImpl implements BusinessService {
         log.info("Бизнес создан успешно");
 
         return businessCreateResponse;
+    }
+
+    @Override
+    public void isBusinessExistById(Long id) {
+        if (!businessRepository.existsById(id))
+            throw new NoSuchElementException("Business does not exist");
+    }
+
+    @Override
+    public BusinessDto getBusinessById(Long id) {
+        Business business = businessRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Business not found"));
+        return businessMapper.toDto(business);
     }
 }
