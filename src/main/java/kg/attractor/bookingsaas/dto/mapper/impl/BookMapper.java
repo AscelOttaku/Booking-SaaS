@@ -1,6 +1,6 @@
 package kg.attractor.bookingsaas.dto.mapper.impl;
 
-import kg.attractor.bookingsaas.dto.BookDto;
+import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.models.Book;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import lombok.RequiredArgsConstructor;

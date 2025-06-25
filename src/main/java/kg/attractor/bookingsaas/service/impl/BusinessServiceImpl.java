@@ -1,9 +1,11 @@
 package kg.attractor.bookingsaas.service.impl;
 
+import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.bussines.BusinessCreateResponse;
 import kg.attractor.bookingsaas.dto.bussines.BusinessInfoRequest;
 import kg.attractor.bookingsaas.dto.bussines.BusinessInfoResponse;
 import kg.attractor.bookingsaas.dto.bussines.BusinessSummaryResponse;
+import kg.attractor.bookingsaas.dto.mapper.impl.BusinessMapper;
 import kg.attractor.bookingsaas.exceptions.NotFoundException;
 import kg.attractor.bookingsaas.models.Business;
 import kg.attractor.bookingsaas.models.User;
@@ -12,20 +14,11 @@ import kg.attractor.bookingsaas.repository.ServiceRepository;
 import kg.attractor.bookingsaas.service.BusinessService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import kg.attractor.bookingsaas.dto.BusinessDto;
-import kg.attractor.bookingsaas.dto.mapper.impl.BusinessMapper;
-import kg.attractor.bookingsaas.models.Business;
-import kg.attractor.bookingsaas.repository.BusinessRepository;
-import kg.attractor.bookingsaas.service.BusinessService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import java.util.NoSuchElementException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import kg.attractor.bookingsaas.models.Service;
-import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.NoSuchElementException;
 
 import static kg.attractor.bookingsaas.enums.RoleEnum.BUSINESS_OWNER;
 
@@ -34,11 +27,8 @@ import static kg.attractor.bookingsaas.enums.RoleEnum.BUSINESS_OWNER;
 @org.springframework.stereotype.Service
 @Slf4j
 public class BusinessServiceImpl implements BusinessService {
-
     private final BusinessRepository businessRepository;
     private final ServiceRepository serviceRepository;
-
-    private final BusinessRepository businessRepository;
     private final BusinessMapper businessMapper;
 
     private User getAuthUser() {
@@ -86,8 +76,8 @@ public class BusinessServiceImpl implements BusinessService {
         Business business = businessRepository.findById(businessId).orElseThrow(() -> new NotFoundException("Бизнес не найден по id: " + businessId));
         BusinessInfoResponse businessInfoResponse = new BusinessInfoResponse();
 
-        List<Service> serviceList = serviceRepository.findAllByBusinessId(business.getId());
-        List<String> services =  serviceList.stream().map(Service::getServiceName).toList();
+        List<kg.attractor.bookingsaas.models.Service> serviceList = serviceRepository.findAllByBusinessId(business.getId());
+        List<String> services =  serviceList.stream().map(kg.attractor.bookingsaas.models.Service::getServiceName).toList();
 
         businessInfoResponse.setTitle(business.getTitle());
         businessInfoResponse.setDescription(business.getDescription());

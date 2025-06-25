@@ -1,7 +1,7 @@
 package kg.attractor.bookingsaas.service.impl;
 
-import kg.attractor.bookingsaas.dto.OutputUserDto;
-import kg.attractor.bookingsaas.dto.UpdateUserDto;
+import kg.attractor.bookingsaas.dto.user.OutputUserDto;
+import kg.attractor.bookingsaas.dto.user.UpdateUserDto;
 import kg.attractor.bookingsaas.dto.mapper.OutputUserMapper;
 import kg.attractor.bookingsaas.dto.mapper.UpdateUserMapper;
 import kg.attractor.bookingsaas.models.User;

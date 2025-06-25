@@ -1,6 +1,6 @@
 package kg.attractor.bookingsaas.dto.mapper;
 
-import kg.attractor.bookingsaas.dto.OutputUserDto;
+import kg.attractor.bookingsaas.dto.user.OutputUserDto;
 import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import org.mapstruct.Mapper;

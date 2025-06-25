@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import kg.attractor.bookingsaas.annotations.UniqueUserEmail;
 import kg.attractor.bookingsaas.annotations.UniqueUserPhoneNumber;
-import kg.attractor.bookingsaas.dto.UserDto;
+import kg.attractor.bookingsaas.dto.user.UserDto;
 import lombok.Getter;
 import lombok.Setter;
 

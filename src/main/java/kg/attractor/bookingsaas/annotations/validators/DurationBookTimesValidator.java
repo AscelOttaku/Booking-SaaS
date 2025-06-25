@@ -3,7 +3,7 @@ package kg.attractor.bookingsaas.annotations.validators;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import kg.attractor.bookingsaas.annotations.DurationBookTimes;
-import kg.attractor.bookingsaas.dto.BookDto;
+import kg.attractor.bookingsaas.dto.booked.BookDto;
 
 public class DurationBookTimesValidator implements ConstraintValidator<DurationBookTimes, BookDto> {
     private long durationInSeconds;

@@ -1,6 +1,6 @@
 package kg.attractor.bookingsaas.dto.mapper;
 
-import kg.attractor.bookingsaas.dto.UpdateUserDto;
+import kg.attractor.bookingsaas.dto.user.UpdateUserDto;
 import kg.attractor.bookingsaas.models.User;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
