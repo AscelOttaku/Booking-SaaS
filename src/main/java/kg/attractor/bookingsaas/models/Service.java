@@ -1,10 +1,16 @@
 package kg.attractor.bookingsaas.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
 @Entity
+@Getter
+@Setter
 @Table(name = "services")
 public class Service {
 
@@ -19,7 +25,7 @@ public class Service {
     @JoinColumn(name = "bussines_id", nullable = false)
     private Business business;
 
-    @OneToMany(mappedBy = "services")
+    @OneToMany(mappedBy = "services", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private List<Book> books;
 
     @ManyToMany

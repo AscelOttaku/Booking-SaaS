@@ -25,4 +25,8 @@ public class Book {
 
     @Column(name = "finished_at", nullable = false)
     private LocalDateTime finishedAt;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booked_by")
+    private User user;
 }

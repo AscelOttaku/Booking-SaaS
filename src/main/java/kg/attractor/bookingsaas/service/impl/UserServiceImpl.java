@@ -1,6 +1,8 @@
 package kg.attractor.bookingsaas.service.impl;
 
+import kg.attractor.bookingsaas.dto.OutputUserDto;
 import kg.attractor.bookingsaas.dto.UpdateUserDto;
+import kg.attractor.bookingsaas.dto.mapper.OutputUserMapper;
 import kg.attractor.bookingsaas.dto.mapper.UpdateUserMapper;
 import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.repository.UserRepository;
@@ -15,12 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UpdateUserMapper updateUserMapper;
+    private final OutputUserMapper outputUserMapper;
 
     @Override
     public boolean isUserEmailIsUnique(String email) {
@@ -47,14 +52,16 @@ public class UserServiceImpl implements UserService {
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public UpdateUserDto updateUser(UpdateUserDto updateUserDto) throws IOException {
-        User user = userRepository.findUserById(updateUserDto.getId());
+        User user = userRepository.findUserById(updateUserDto.getId())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        var authUser = getAuthUser();
+        if (!authUser.getId().equals(user.getId()))
+            throw new IllegalArgumentException("Auth user " + authUser.getFirstName() + " cannot update " + updateUserDto.getFirstName());
 
         if (updateUserDto.getImage() != null) {
-            if (user.getLogo() != null) {
-                FileUtil.deleteFile(user.getLogo());
-                uploadUserFile(updateUserDto.getImage(), user);
-            } else
-                uploadUserFile(updateUserDto.getImage(), user);
+            FileUtil.deleteFile(user.getLogo());
+            uploadUserFile(updateUserDto.getImage(), user);
         }
         updateUserMapper.updateUser(user, updateUserDto);
         return updateUserMapper.mapToDto(user);
@@ -63,5 +70,13 @@ public class UserServiceImpl implements UserService {
     private static void uploadUserFile(MultipartFile multipartFile, User user) throws IOException {
         String filePath = FileUtil.uploadFile(multipartFile);
         user.setLogo(filePath);
+    }
+
+    @Override
+    public List<OutputUserDto> findClientsByBusinessId(Long businessId) {
+        return userRepository.findUsersByBusinessId(businessId)
+                .stream()
+                .map(outputUserMapper::mapToDto)
+                .toList();
     }
 }

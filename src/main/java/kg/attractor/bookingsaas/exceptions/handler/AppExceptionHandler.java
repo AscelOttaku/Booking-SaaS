@@ -1,6 +1,10 @@
 package kg.attractor.bookingsaas.exceptions.handler;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kg.attractor.bookingsaas.exceptions.*;
+import kg.attractor.bookingsaas.exceptions.body.ValidationExceptionBody;
+import kg.attractor.bookingsaas.service.ErrorService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,17 +18,16 @@ import java.lang.IllegalArgumentException;
 
 @RestControllerAdvice
 @Slf4j
+@RequiredArgsConstructor
 public class AppExceptionHandler {
+    private final ErrorService errorService;
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
-        ExceptionResponse response = ExceptionResponse.builder()
-                .httpStatus(HttpStatus.BAD_REQUEST)
-                .exceptionClassName(e.getClass().getSimpleName())
-                .message("Validation failed")
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    private ValidationExceptionBody handleValidationException(
+            MethodArgumentNotValidException ex, HttpServletRequest request
+    ) {
+        return errorService.handleValidationException(ex, request);
     }
 
     @ExceptionHandler(AlreadyExistsException.class)
