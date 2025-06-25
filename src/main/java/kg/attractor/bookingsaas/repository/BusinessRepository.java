@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import java.util.List;
+
 @Repository
 public interface BusinessRepository extends JpaRepository<Business, Long> {
 
@@ -22,4 +24,9 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
                 where bs.id = :businessId
             """)
     List<UserBusinessServiceProjection> getUserBusinessServiceBookByBusinessId(Long businessId);
+
+    @Query("SELECT b FROM Business b WHERE b.title LIKE %?1%")
+    List<Business> findByNameContaining(String name);
+
+    boolean existsByTitle(String title);
 }
