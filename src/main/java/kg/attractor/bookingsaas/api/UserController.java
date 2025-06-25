@@ -1,7 +1,7 @@
 package kg.attractor.bookingsaas.api;
 
 import jakarta.validation.Valid;
-import kg.attractor.bookingsaas.dto.UpdateUserDto;
+import kg.attractor.bookingsaas.dto.user.UpdateUserDto;
 import kg.attractor.bookingsaas.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

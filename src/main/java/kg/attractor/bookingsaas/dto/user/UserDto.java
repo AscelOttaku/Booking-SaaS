@@ -1,4 +1,4 @@
-package kg.attractor.bookingsaas.dto;
+package kg.attractor.bookingsaas.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;

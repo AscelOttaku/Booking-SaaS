@@ -1,7 +1,7 @@
 package kg.attractor.bookingsaas.service;
 
-import kg.attractor.bookingsaas.dto.OutputUserDto;
-import kg.attractor.bookingsaas.dto.UpdateUserDto;
+import kg.attractor.bookingsaas.dto.user.OutputUserDto;
+import kg.attractor.bookingsaas.dto.user.UpdateUserDto;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.IOException;

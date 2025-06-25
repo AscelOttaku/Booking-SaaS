@@ -1,26 +1,19 @@
 package kg.attractor.bookingsaas.api;
 
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kg.attractor.bookingsaas.dto.auth.AuthenticationResponse;
-import kg.attractor.bookingsaas.dto.auth.SignUpRequest;
+import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.bussines.BusinessCreateResponse;
 import kg.attractor.bookingsaas.dto.bussines.BusinessInfoRequest;
-import kg.attractor.bookingsaas.dto.bussines.BusinessInfoResponse;
 import kg.attractor.bookingsaas.dto.bussines.BusinessSummaryResponse;
-import kg.attractor.bookingsaas.models.Business;
-import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.service.BusinessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static kg.attractor.bookingsaas.enums.RoleEnum.BUSINESS_OWNER;
 
 @RestController
 @RequestMapping("/api/business")
@@ -30,34 +23,36 @@ public class BusinessApi {
 
     private final BusinessService businessService;
 
-
-    @GetMapping("/getAllBusiness")
+    @GetMapping
     @Operation(
-            summary = "Получения списка бизнесов",
-            description = "Получение списка бизнесов, которые доступны текущему пользователю. ")
-    public List<BusinessSummaryResponse> getBusinessList() {
+            summary = "Получение списка бизнесов",
+            description = "Получение списка всех доступных бизнесов")
+    public List<BusinessSummaryResponse> getAllBusinesses() {
         return businessService.getBusinessList();
     }
 
-    @GetMapping("/searchBusiness")
+    @GetMapping("/search")
     @Operation(
-            summary = "Получение списка бизнесов с фильтрацией",
-            description = "Получение списка бизнесов, с возможностью поиска по названию")
-    public List<BusinessSummaryResponse> searchBusiness(
-            @Parameter(description = "Название бизнеса") @RequestParam(required = false) String name){
+            summary = "Поиск бизнесов",
+            description = "Поиск бизнесов по названию")
+    public List<BusinessSummaryResponse> searchBusinesses(
+            @Parameter(description = "Название бизнеса для поиска")
+            @RequestParam(required = false) String name) {
         return businessService.searchBusiness(name);
     }
 
-    @GetMapping("/{businessId}")
+    @GetMapping("/{id}")
     @Operation(
-            summary = "Получение информации о бизнесе",
-            description = "Получение информации о бизнесе по его ID")
-    public BusinessInfoResponse getBusinessInfo(@PathVariable("businessId") Long businessId) {
-        return businessService.getBusinessInfo(businessId);
+            summary = "Получение бизнеса по ID",
+            description = "Получение полной информации о бизнесе по его ID")
+    public BusinessDto getBusinessById(
+            @Parameter(description = "ID бизнеса", required = true, example = "1")
+            @PathVariable Long id) {
+        return businessService.getBusinessById(id);
     }
 
     @PreAuthorize("hasAuthority('BUSINESS_OWNER')")
-    @PostMapping("/createBusiness")
+    @PostMapping
     @Operation(
             summary = "Создание бизнеса",
             description = "Создание бизнеса с указанием названия и описания," +
@@ -65,5 +60,4 @@ public class BusinessApi {
     public BusinessCreateResponse createBusiness(@Valid @RequestBody BusinessInfoRequest businessInfo) {
         return businessService.createBusiness(businessInfo);
     }
-
 }

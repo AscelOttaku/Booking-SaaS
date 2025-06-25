@@ -1,5 +1,6 @@
 package kg.attractor.bookingsaas.service.impl;
 
+import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.ServiceDto;
 import kg.attractor.bookingsaas.dto.UserBusinessKey;
 import kg.attractor.bookingsaas.dto.UserBusinessServiceBookDto;
@@ -26,27 +27,44 @@ public class UserBusinessServiceBookServiceImpl implements UserBusinessServiceBo
 
     @Override
     public List<UserBusinessServiceBookDto> getUserBusinessServiceBook(Long businessId) {
-        Map<UserBusinessKey, List<ServiceDto>> userBusinessServiceProjections = businessRepository
-                .getUserBusinessServiceBookByBusinessId(businessId)
-                .stream()
-                .collect(Collectors.groupingBy(
-                        (UserBusinessServiceProjection userBusinessServiceProjection) ->
-                                UserBusinessKey.builder()
-                                        .user(outputUserMapper.mapToDto(userBusinessServiceProjection.getUser()))
-                                        .businessDto(businessMapper.toDto(userBusinessServiceProjection.getBusiness()))
-                                        .build(),
-                        Collectors.mapping(userBusinessServiceProjection ->
-                                        serviceMapper.mapToDto(userBusinessServiceProjection.getServices()),
-                                Collectors.toList()
-                        )));
+        if (businessId == null) {
+            throw new IllegalArgumentException("Business ID cannot be null");
+        }
 
-        return userBusinessServiceProjections.entrySet().stream()
-                .map(userBusinessKeyListEntry -> UserBusinessServiceBookDto
-                        .builder()
-                        .user(userBusinessKeyListEntry.getKey().getUser())
-                        .businessDto(userBusinessKeyListEntry.getKey().getBusinessDto())
-                        .services(userBusinessKeyListEntry.getValue())
+        return businessRepository.getUserBusinessServiceBookByBusinessId(businessId)
+                .stream()
+                .collect(Collectors.collectingAndThen(
+                        Collectors.groupingBy(
+                                this::mapToUserBusinessKey,
+                                Collectors.mapping(
+                                        projection -> serviceMapper.mapToDto(projection.getServices()),
+                                        Collectors.toList()
+                                )
+                        ),
+                        this::mapToUserBusinessServiceBookDtos
+                ));
+    }
+
+    private UserBusinessKey mapToUserBusinessKey(UserBusinessServiceProjection projection) {
+        return UserBusinessKey.builder()
+                .user(outputUserMapper.mapToDto(projection.getUser()))
+                .businessDto(businessMapper.toDto(projection.getBusiness()))
+                .build();
+    }
+
+    private List<UserBusinessServiceBookDto> mapToUserBusinessServiceBookDtos(
+            Map<UserBusinessKey, List<ServiceDto>> userServicesMap) {
+        return userServicesMap.entrySet().stream()
+                .map(entry -> UserBusinessServiceBookDto.builder()
+                        .user(entry.getKey().getUser())
+                        .businessDto(entry.getKey().getBusinessDto())
+                        .services(entry.getValue())
                         .build())
                 .toList();
+    }
+
+    public BusinessDto findBusinessById(Long id) {
+        return businessMapper.toDto(businessRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Business not found by id " + id)));
     }
 }
