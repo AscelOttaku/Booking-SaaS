@@ -3,7 +3,6 @@ package kg.attractor.bookingsaas.service.impl;
 import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
-import kg.attractor.bookingsaas.dto.mapper.BookHistoryMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.BookMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
 import kg.attractor.bookingsaas.repository.BookRepository;
@@ -24,7 +23,6 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
     private final PageHolderWrapper pageHolderWrapper;
-    private final BookHistoryMapper bookHistoryMapper;
 
     @Override
     public List<BookDto> findAllBooksByServiceId(Long serviceId) {
@@ -36,12 +34,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookDto> findAllBooksByBusinessId(Long businesId) {
-        Assert.notNull(businesId, "businesId must not be null");
-        return bookRepository.findAllBooksByBusinessId(businesId)
-                .stream()
-                .map(bookMapper::toDto)
-                .toList();
+    public PageHolder<BookDto> findAllBooksByBusinessId(Long businessId, int page, int size) {
+        Assert.notNull(businessId, "businessId must not be null");
+        Pageable pageable = PageRequest.of(page, size, Sort.by("finishedAt").descending());
+        Page<BookDto> bookPages = bookRepository.findAllBooksByBusinessId(businessId, pageable)
+                .map(bookMapper::toDto);
+        return pageHolderWrapper.wrapPageHolder(bookPages);
     }
 
     @Override
