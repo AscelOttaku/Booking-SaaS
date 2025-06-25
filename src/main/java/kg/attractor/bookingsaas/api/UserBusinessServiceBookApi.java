@@ -29,7 +29,7 @@ public class UserBusinessServiceBookApi {
     )
     @GetMapping("{businessId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserBusinessServiceBookDto> getUserBusinessServiceBookByBusinessId(
+    public List<UserBusinessServiceBookDto> getUserBusinessServiceBooksByBusinessId(
             @Parameter(description = "ID of the business to retrieve bookings for", required = true, example = "1")
             @PathVariable Long businessId) {
         return userBusinessServiceBookService.getUserBusinessServiceBook(businessId);

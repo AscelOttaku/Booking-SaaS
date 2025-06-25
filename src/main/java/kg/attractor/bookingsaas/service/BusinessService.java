@@ -21,4 +21,6 @@ public interface BusinessService {
     void isBusinessExistById(Long id);
   
     BusinessDto getBusinessById(Long id);
+
+    boolean isBusinessTitleIsUnique(String title);
 }

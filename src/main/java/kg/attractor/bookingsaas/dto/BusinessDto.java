@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
+import kg.attractor.bookingsaas.annotations.BusinessUniqueTitle;
 import kg.attractor.bookingsaas.dto.user.OutputUserDto;
 import kg.attractor.bookingsaas.markers.OnCreate;
 import kg.attractor.bookingsaas.markers.OnUpdate;
@@ -27,6 +28,7 @@ public class BusinessDto {
 
     @NotBlank(groups = OnCreate.class, message = "title must not be blank")
     @Size(max = 255, groups = {OnCreate.class, OnUpdate.class}, message = "title must be at most 255 characters")
+    @BusinessUniqueTitle(message = "title must be unique", groups = {OnCreate.class, OnUpdate.class})
     private String title;
 
     @Size(max = 2000, groups = {OnCreate.class, OnUpdate.class}, message = "description must be at most 2000 characters")

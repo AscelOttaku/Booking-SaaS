@@ -128,4 +128,9 @@ public class BusinessServiceImpl implements BusinessService {
                 .orElseThrow(() -> new NoSuchElementException("Business not found"));
         return businessMapper.toDto(business);
     }
+
+    @Override
+    public boolean isBusinessTitleIsUnique(String title) {
+        return !businessRepository.existsByTitle(title);
+    }
 }
