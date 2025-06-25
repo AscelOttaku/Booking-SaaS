@@ -3,9 +3,9 @@ package kg.attractor.bookingsaas.annotations.validators;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import kg.attractor.bookingsaas.annotations.DurationBookTimes;
-import kg.attractor.bookingsaas.dto.CreateBookDto;
+import kg.attractor.bookingsaas.dto.BookDto;
 
-public class DurationBookTimesValidator implements ConstraintValidator<DurationBookTimes, CreateBookDto> {
+public class DurationBookTimesValidator implements ConstraintValidator<DurationBookTimes, BookDto> {
     private long durationInSeconds;
 
     @Override
@@ -14,7 +14,7 @@ public class DurationBookTimesValidator implements ConstraintValidator<DurationB
     }
 
     @Override
-    public boolean isValid(CreateBookDto createBookDto, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(BookDto createBookDto, ConstraintValidatorContext constraintValidatorContext) {
         if (createBookDto == null) {
             return true;
         }

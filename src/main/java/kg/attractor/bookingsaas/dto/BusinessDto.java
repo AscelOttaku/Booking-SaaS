@@ -8,10 +8,10 @@ import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import kg.attractor.bookingsaas.markers.OnCreate;
 import kg.attractor.bookingsaas.markers.OnUpdate;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Getter
@@ -38,4 +38,14 @@ public class BusinessDto {
     private LocalDateTime updatedAt;
 
     private List<@Valid ServiceDto> services;
+
+    public String getCreatedFormat() {
+        return DateTimeFormatter.ofPattern("dd:MM:yyyy")
+                .format(createdAt);
+    }
+
+    public String getUpdatedFormat() {
+        return updatedAt != null ? DateTimeFormatter.ofPattern("dd:MM:yyyy")
+                .format(updatedAt) : "No updated";
+    }
 }

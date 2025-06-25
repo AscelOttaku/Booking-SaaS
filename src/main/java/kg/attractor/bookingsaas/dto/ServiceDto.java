@@ -26,5 +26,5 @@ public class ServiceDto {
     @NotNull(groups = OnCreate.class, message = "Business ID must not be null")
     private Long businessId;
 
-    private List<@Valid CreateBookDto> books;
+    private List<@Valid BookDto> books;
 }

@@ -3,6 +3,7 @@ package kg.attractor.bookingsaas.dto.mapper.impl;
 import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.mapper.OutputUserMapper;
 import kg.attractor.bookingsaas.models.Business;
+import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
@@ -37,8 +38,32 @@ public class BusinessMapper {
                             .collect(Collectors.toList())
             );
         }
-
         return dto;
+    }
+
+    public BusinessDto toDto(UserBusinessServiceProjection.BusinessInfo businessInfo) {
+        if (isNull(businessInfo)) return null;
+
+        BusinessDto dto = new BusinessDto();
+        dto.setId(businessInfo.getId());
+        dto.setTitle(businessInfo.getTitle());
+        dto.setDescription(businessInfo.getDescription());
+        dto.setCreatedAt(businessInfo.getCreatedAt());
+        dto.setUpdatedAt(businessInfo.getUpdatedAt());
+
+        if (dto.getServices() != null) {
+            dto.setServices(businessInfo.getServices().stream()
+                    .map(serviceMapper::mapToDto)
+                    .toList());
+        }
+        if (businessInfo.getUser() != null) {
+            dto.setUser(userMapper.mapToDto(businessInfo.getUser()));
+        }
+        return dto;
+    }
+
+    private static boolean isNull(UserBusinessServiceProjection.BusinessInfo businessInfo) {
+        return businessInfo == null;
     }
 
     public Business toEntity(BusinessDto dto) {

@@ -1,6 +1,7 @@
 package kg.attractor.bookingsaas.dto.mapper.impl;
 
 import kg.attractor.bookingsaas.dto.ServiceDto;
+import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +21,19 @@ public class ServiceMapper {
                         service.getBooks().stream()
                                 .map(bookMapper::toDto)
                                 .toList() : null)
+                .businessId(service.getBusiness() != null ? service.getBusiness().getId() : null)
+                .build();
+    }
+
+    public ServiceDto mapToDto(UserBusinessServiceProjection.ServiceInfo service) {
+        return ServiceDto.builder()
+                .id(service.getId())
+                .serviceName(service.getServiceName())
+                .books(service.getBooks() != null ?
+                        service.getBooks().stream()
+                                .map(bookMapper::toDto)
+                                .toList() : null)
+                .businessId(service.getBusiness() != null ? service.getBusiness().getId() : null)
                 .build();
     }
 
