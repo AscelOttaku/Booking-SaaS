@@ -3,9 +3,9 @@ package kg.attractor.bookingsaas.annotations.validators;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import kg.attractor.bookingsaas.annotations.DurationBookTimes;
-import kg.attractor.bookingsaas.dto.BookDto;
+import kg.attractor.bookingsaas.dto.CreateBookDto;
 
-public class DurationBookTimesValidator implements ConstraintValidator<DurationBookTimes, BookDto> {
+public class DurationBookTimesValidator implements ConstraintValidator<DurationBookTimes, CreateBookDto> {
     private long durationInSeconds;
 
     @Override
@@ -14,16 +14,16 @@ public class DurationBookTimesValidator implements ConstraintValidator<DurationB
     }
 
     @Override
-    public boolean isValid(BookDto bookDto, ConstraintValidatorContext constraintValidatorContext) {
-        if (bookDto == null) {
+    public boolean isValid(CreateBookDto createBookDto, ConstraintValidatorContext constraintValidatorContext) {
+        if (createBookDto == null) {
             return true;
         }
-        if (bookDto.getStartedAt() == null || bookDto.getFinishedAt() == null) {
+        if (createBookDto.getStartedAt() == null || createBookDto.getFinishedAt() == null) {
             return false;
         }
         long actualDuration = java.time.Duration.between(
-                bookDto.getStartedAt(),
-                bookDto.getFinishedAt()
+                createBookDto.getStartedAt(),
+                createBookDto.getFinishedAt()
         ).getSeconds();
         if (actualDuration < durationInSeconds) {
             constraintValidatorContext.disableDefaultConstraintViolation();
