@@ -24,7 +24,7 @@ public class BookDto {
     @Schema(description = "Service ID", example = "2")
     @NotNull(groups = {OnCreate.class}, message = "serviceId must not be null")
     @Positive(groups = {OnCreate.class}, message = "serviceId must be positive")
-    private Long serviceId;
+    private Long scheduleId;
 
     @Schema(description = "Booking start time", example = "2024-07-01T10:00:00")
     @NotNull(groups = {OnCreate.class}, message = "startedAt must not be null")

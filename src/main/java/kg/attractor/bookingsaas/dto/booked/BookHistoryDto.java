@@ -1,6 +1,7 @@
 package kg.attractor.bookingsaas.dto.booked;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kg.attractor.bookingsaas.dto.ScheduleDto;
 import lombok.*;
 
 import java.time.LocalDateTime;

@@ -12,17 +12,24 @@ import java.util.List;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
+
+    @Query("select b from Book b " +
+            "join b.schedule s " +
+            "join s.service sr " +
+            "where sr.id = :serviceId")
     List<Book> findAllBooksByServicesId(Long serviceId);
 
     @Query("select b from Book b " +
-            "join b.services s " +
-            "where s.business.id = :businessId")
+            "join b.schedule s " +
+            "join s.service sr " +
+            "where sr.business.id = :businessId")
     Page<Book> findAllBooksByBusinessId(Long businessId, Pageable pageable);
 
     @Query("select new kg.attractor.bookingsaas.dto.booked.BookHistoryDto(" +
             "b.id, s.serviceName, bs.title, b.startedAt, b.finishedAt" +
             ") from Book b " +
-            "join b.services s " +
+            "join b.schedule sc " +
+            "join sc.service s " +
             "join s.business bs" +
             " where b.user.id = :userId and b.finishedAt is not null and b.finishedAt < CURRENT_TIMESTAMP")
     Page<BookHistoryDto> findAllUsersBookedHistory(Long userId, Pageable pageable);

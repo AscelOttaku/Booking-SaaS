@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -23,15 +23,9 @@ public class Service {
     @JoinColumn(name = "bussines_id", nullable = false)
     private Business business;
 
-    @OneToMany(mappedBy = "services", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
-    private List<Book> books;
+    @Column(name = "duration_in_min", nullable = false)
+    private Integer duration;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_service",
-            joinColumns = @JoinColumn(name = "service_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "service_id"})
-    )
-    private List<User> users;
+    @Column(name = "price", nullable = false, columnDefinition = "decimal(10,2)")
+    private BigDecimal price;
 }

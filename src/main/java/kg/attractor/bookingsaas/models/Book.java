@@ -17,8 +17,8 @@ public class Book {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "service_id", nullable = false, foreignKey = @ForeignKey(name = "fk_books_service"))
-    private Service services;
+    @JoinColumn(name = "schedule_id", nullable = false)
+    private Schedule schedule;
 
     @Column(name = "strated_at", nullable = false)
     private LocalDateTime startedAt;

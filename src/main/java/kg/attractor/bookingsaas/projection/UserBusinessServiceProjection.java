@@ -1,7 +1,9 @@
 package kg.attractor.bookingsaas.projection;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 public interface UserBusinessServiceProjection {
@@ -41,12 +43,27 @@ public interface UserBusinessServiceProjection {
         Long getId();
         BusinessInfo getBusiness();
         String getServiceName();
-        List<BookInfo> getBooks();
+        Integer getDuration();
+        BigDecimal getPrice();
+    }
+
+    interface ScheduleInfo {
+        Long getId();
+        DayOfWeekInfo getDayOfWeek();
+        LocalTime getStartTime();
+        LocalTime getEndTime();
+        Boolean getIsAvailable();
+        Integer getMaxBookingSize();
+
+        interface DayOfWeekInfo {
+            Long getId();
+            String getName();
+        }
     }
 
     interface BookInfo {
         Long getId();
-        ServiceInfo getServices();
+        ScheduleInfo getSchedule();
         LocalDateTime getStartedAt();
         LocalDateTime getFinishedAt();
     }

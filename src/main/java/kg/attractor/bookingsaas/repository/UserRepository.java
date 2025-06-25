@@ -25,8 +25,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u from User u " +
             "join Book b on u.id = b.user.id " +
-            "join Service s on b.services.id = s.id " +
-            "join Business bs on s.business.id = bs.id " +
+            "join Schedule s on b.schedule.id = s.id " +
+            "join Service sv on s.service.id = sv.id " +
+            "join Business bs on sv.business.id = bs.id " +
             "where bs.id = :businessId")
     List<User> findUsersByBusinessId(Long businessId);
 }

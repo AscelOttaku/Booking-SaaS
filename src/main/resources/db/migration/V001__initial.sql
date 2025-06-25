@@ -152,7 +152,24 @@ ALTER TABLE business_review
     ADD CONSTRAINT fk_review_business FOREIGN KEY (business_id) REFERENCES bussines(id),
     ADD CONSTRAINT fk_review_user FOREIGN KEY (user_id) REFERENCES users(id);
 
+
 -- 🟩 Первоначальные данные
 INSERT INTO role (role_name) VALUES ('CLIENT');
 INSERT INTO role (role_name) VALUES ('ADMIN');
 INSERT INTO role (role_name) VALUES ('BUSINESS_OWNER');
+
+ALTER TABLE schedule
+    alter column start_time TYPE time,
+    alter column end_time TYPE time;
+
+ALTER TABLE bussines
+    ADD CONSTRAINT unq_bussines_title UNIQUE (title);
+
+alter table books
+    drop constraint if exists fk_books_service;
+
+alter table books
+    drop column if exists service_id,
+    add column schedule_id bigint references schedule (id)
+        on delete cascade
+        on update cascade;
