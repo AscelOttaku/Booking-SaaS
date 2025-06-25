@@ -6,10 +6,11 @@ spring:
     secret_key: some-long-secret-string-at-least-64-chars-1234567890abcdef1234567890abcdef
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/booking_saas
-    username: postgres
-    password: Kanybek12345
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
 
   jpa:
     hibernate:
