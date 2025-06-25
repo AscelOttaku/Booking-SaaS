@@ -9,6 +9,8 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Getter
+@Setter
 @Table(name = "services")
 public class Service {
 
