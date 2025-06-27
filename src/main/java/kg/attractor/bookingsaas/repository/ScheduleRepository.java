@@ -12,7 +12,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     @Query("select case when count(s) = 0 then true else false end from Schedule s " +
             "where s.dayOfWeek.id = :dayOfWeekId and s.service.id = :serviceId")
-    boolean existByDayOfWeekIdAndServiceId(Long dayOfWeekId, Long serviceId);
+    boolean notExistByDayOfWeekIdAndServiceId(Long dayOfWeekId, Long serviceId);
 
     @Query("select s.id from Schedule s " +
             "where s.service.id = :serviceId and s.dayOfWeek.id in :dayOfWeekIds")

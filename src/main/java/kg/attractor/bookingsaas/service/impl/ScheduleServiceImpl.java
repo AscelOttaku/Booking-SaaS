@@ -30,8 +30,8 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
         serviceService.checkIfServiceExistsById(dailyScheduleDto.getServiceId());
         var schedule = scheduleMapper.mapToEntity(dailyScheduleDto);
 
-        var result = scheduleRepository.existByDayOfWeekIdAndServiceId(dailyScheduleDto.getDayOfWeekId(), dailyScheduleDto.getServiceId());
-        if (result)
+        var result = scheduleRepository.notExistByDayOfWeekIdAndServiceId(dailyScheduleDto.getDayOfWeekId(), dailyScheduleDto.getServiceId());
+        if (!result)
             throw new IllegalArgumentException("schedule already exists ");
 
         var savedSchedule = scheduleRepository.save(schedule);
