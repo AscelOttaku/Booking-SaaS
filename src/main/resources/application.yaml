@@ -6,9 +6,9 @@ spring:
     secret_key: some-long-secret-string-at-least-64-chars-1234567890abcdef1234567890abcdef
 
   datasource:
-    url: jdbc:postgresql://dpg-d1e4kpngi27c7388qbs0-a.oregon-postgres.render.com:5432/saas_book_postgres
-    username: root
-    password: sVxkZhtP0MArgXESPmJnJb7udyiV13VT
+    url: jdbc:postgresql://localhost:5432/booking_saas
+    username: postgres
+    password: 123321
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -17,9 +17,9 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   flyway:
-    url: jdbc:postgresql://dpg-d1e4kpngi27c7388qbs0-a.oregon-postgres.render.com:5432/saas_book_postgres
-    user: root
-    password: sVxkZhtP0MArgXESPmJnJb7udyiV13VT
+    url: jdbc:postgresql://localhost:5432/booking_saas
+    user: postgres
+    password: 123321
     locations: classpath:db/migration
     enabled: true
     validate-on-migrate: false

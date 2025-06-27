@@ -100,8 +100,8 @@ CREATE TABLE user_service (
 -- Таблица BUSINESS_REVIEW
 CREATE TABLE business_review (
     id BIGSERIAL PRIMARY KEY,
-    business_id INT NOT NULL,
-    user_id INT NOT NULL,
+    business_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
     review_text VARCHAR(255) NOT NULL,
     rating DECIMAL(2,1) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

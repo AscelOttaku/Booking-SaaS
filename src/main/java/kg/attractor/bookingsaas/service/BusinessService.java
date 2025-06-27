@@ -11,16 +11,16 @@ import java.util.List;
 
 public interface BusinessService {
     List<BusinessSummaryResponse> getBusinessList();
-
-    List<BusinessSummaryResponse> searchBusiness(String name);
-
-    BusinessInfoResponse getBusinessInfo(Long businessId);
-
-    BusinessCreateResponse createBusiness(BusinessInfoRequest businessInfo);
-  
-    void isBusinessExistById(Long id);
-  
-    BusinessDto getBusinessById(Long id);
-
-    boolean isBusinessTitleIsUnique(String title);
+//
+//    List<BusinessSummaryResponse> searchBusiness(String name);
+//
+//    BusinessInfoResponse getBusinessInfo(Long businessId);
+//
+//    BusinessCreateResponse createBusiness(BusinessInfoRequest businessInfo);
+//
+//    void isBusinessExistById(Long id);
+//
+//    BusinessDto getBusinessById(Long id);
+//
+//    boolean isBusinessTitleIsUnique(String title);
 }
