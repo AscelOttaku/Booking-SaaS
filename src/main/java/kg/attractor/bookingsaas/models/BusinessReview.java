@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "business_review")
 public class BusinessReview {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,6 +31,11 @@ public class BusinessReview {
     @Column(columnDefinition = "numeric")
     private BigDecimal rating;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT now()", updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 }

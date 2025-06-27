@@ -10,17 +10,19 @@ import kg.attractor.bookingsaas.dto.BusinessDto;
 import java.util.List;
 
 public interface BusinessService {
-    List<BusinessSummaryResponse> getBusinessList();
-//
-//    List<BusinessSummaryResponse> searchBusiness(String name);
-//
-//    BusinessInfoResponse getBusinessInfo(Long businessId);
-//
-//    BusinessCreateResponse createBusiness(BusinessInfoRequest businessInfo);
-//
-//    void isBusinessExistById(Long id);
-//
-//    BusinessDto getBusinessById(Long id);
-//
-//    boolean isBusinessTitleIsUnique(String title);
+    List<BusinessSummaryResponse> searchBusiness(String name);
+
+    BusinessCreateResponse createBusiness(BusinessInfoRequest businessInfo);
+
+    void isBusinessExistById(Long id);
+
+    void checkIfBusinessExistByTitle(String businessTitle);
+
+    BusinessDto getBusinessById(Long id);
+
+    boolean isBusinessTitleIsUnique(String title);
+
+    PageHolder<BusinessSummaryResponse> getBusinessList(int page, int size);
+
+    Long countBusinessesByUserId(Long authorizedUserId);
 }

@@ -1,5 +1,6 @@
 package kg.attractor.bookingsaas.service.impl;
 
+import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.service.AuthorizedUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -20,5 +21,11 @@ public class AuthorizedUserServiceImpl implements AuthorizedUserService {
             throw new IllegalArgumentException("user is not authenticated");
 
         return (UserDetails) authentication.getPrincipal();
+    }
+
+    @Override
+    public Long getAuthorizedUserId() {
+        User authUser = (User) getAuthUser();
+        return authUser.getId();
     }
 }

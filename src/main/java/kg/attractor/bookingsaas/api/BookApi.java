@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
@@ -104,5 +105,28 @@ public class BookApi {
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
         return bookService.findAlUsersBookedHistory(userId, page, size);
+    }
+
+    @PostMapping
+    @Operation(
+            summary = "Create a new booking",
+            description = "Creates a new booking for a user",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Booking created successfully",
+                            content = @Content(schema = @Schema(implementation = BookDto.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid booking data"
+                    )
+            }
+    )
+    @ResponseStatus(HttpStatus.CREATED)
+    public BookDto createBook(
+            @Parameter(description = "Booking data to create", required = true)
+            @RequestBody @Valid BookDto bookDto) {
+        return bookService.createBook(bookDto);
     }
 }

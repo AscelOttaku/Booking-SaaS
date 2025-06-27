@@ -9,10 +9,11 @@ import lombok.Setter;
 @Entity
 @Table(name = "city")
 public class City {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 }

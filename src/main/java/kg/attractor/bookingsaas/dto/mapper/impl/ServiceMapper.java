@@ -6,22 +6,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ServiceMapper {
-    private final BookMapper bookMapper;
-
-    public ServiceMapper(BookMapper bookMapper) {
-        this.bookMapper = bookMapper;
-    }
 
     public ServiceDto mapToDto(kg.attractor.bookingsaas.models.Service service) {
         return ServiceDto.builder()
                 .id(service.getId())
                 .serviceName(service.getServiceName())
-                .businessId(service.getBusiness().getId())
-                .books(service.getBooks() != null ?
-                        service.getBooks().stream()
-                                .map(bookMapper::toDto)
-                                .toList() : null)
                 .businessId(service.getBusiness() != null ? service.getBusiness().getId() : null)
+                .duration(service.getDuration())
+                .price(service.getPrice())
                 .build();
     }
 
@@ -29,11 +21,9 @@ public class ServiceMapper {
         return ServiceDto.builder()
                 .id(service.getId())
                 .serviceName(service.getServiceName())
-                .books(service.getBooks() != null ?
-                        service.getBooks().stream()
-                                .map(bookMapper::toDto)
-                                .toList() : null)
                 .businessId(service.getBusiness() != null ? service.getBusiness().getId() : null)
+                .duration(service.getDuration())
+                .price(service.getPrice())
                 .build();
     }
 
@@ -44,27 +34,23 @@ public class ServiceMapper {
         kg.attractor.bookingsaas.models.Service service = new kg.attractor.bookingsaas.models.Service();
         service.setId(dto.getId());
         service.setServiceName(dto.getServiceName());
-        if (dto.getBooks() != null) {
-            service.setBooks(dto.getBooks().stream()
-                    .map(bookMapper::toEntity)
-                    .toList());
-        } else {
-            service.setBooks(null);
-        }
+        service.setDuration(dto.getDuration());
+        service.setPrice(dto.getPrice());
         return service;
     }
 
     public void updateModelFromDto(ServiceDto dto, kg.attractor.bookingsaas.models.Service existingService) {
-        if (dto != null && existingService != null) {
-            existingService.setId(dto.getId());
+        if (dto == null || existingService == null) {
+            return;
+        }
+        if (dto.getServiceName() != null) {
             existingService.setServiceName(dto.getServiceName());
-            if (dto.getBooks() != null) {
-                existingService.setBooks(dto.getBooks().stream()
-                        .map(bookMapper::toEntity)
-                        .toList());
-            } else {
-                existingService.setBooks(null);
-            }
+        }
+        if (dto.getDuration() != null) {
+            existingService.setDuration(dto.getDuration());
+        }
+        if (dto.getPrice() != null) {
+            existingService.setPrice(dto.getPrice());
         }
     }
 }

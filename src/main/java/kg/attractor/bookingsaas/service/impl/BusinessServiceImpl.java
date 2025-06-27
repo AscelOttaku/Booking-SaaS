@@ -2,22 +2,25 @@ package kg.attractor.bookingsaas.service.impl;
 
 import jakarta.persistence.*;
 import kg.attractor.bookingsaas.dto.BusinessDto;
+import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.bussines.BusinessCreateResponse;
 import kg.attractor.bookingsaas.dto.bussines.BusinessInfoRequest;
-import kg.attractor.bookingsaas.dto.bussines.BusinessInfoResponse;
 import kg.attractor.bookingsaas.dto.bussines.BusinessSummaryResponse;
 import kg.attractor.bookingsaas.dto.mapper.impl.BusinessMapper;
 import kg.attractor.bookingsaas.exceptions.NotFoundException;
 import kg.attractor.bookingsaas.models.*;
+import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
 import kg.attractor.bookingsaas.models.Business;
 import kg.attractor.bookingsaas.repository.BusinessRepository;
-import kg.attractor.bookingsaas.repository.ServiceRepository;
 import kg.attractor.bookingsaas.service.BusinessService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,6 +37,7 @@ public class BusinessServiceImpl implements BusinessService {
     private final BusinessRepository businessRepository;
     private final ServiceRepository serviceRepository;
     private final BusinessMapper businessMapper;
+    private final PageHolderWrapper pageHolderWrapper;
 
     private User getAuthUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -144,6 +148,12 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
+    public void checkIfBusinessExistByTitle(String businessTitle) {
+        if (!businessRepository.existsByTitle(businessTitle))
+            throw new NoSuchElementException("Business does not exist by title " + businessTitle);
+    }
+
+    @Override
     public BusinessDto getBusinessById(Long id) {
         Business business = businessRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Business not found"));
@@ -153,6 +163,26 @@ public class BusinessServiceImpl implements BusinessService {
     @Override
     public boolean isBusinessTitleIsUnique(String title) {
         return !businessRepository.existsByTitle(title);
+    }
+
+    @Override
+    public PageHolder<BusinessSummaryResponse> getBusinessList(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<BusinessSummaryResponse> businessPage = businessRepository.findAll(pageRequest)
+                .map(business -> {
+                    BusinessSummaryResponse response = new BusinessSummaryResponse();
+                    response.setId(business.getId());
+                    response.setTitle(business.getTitle());
+                    response.setDescription(business.getDescription());
+                    return response;
+                });
+        return pageHolderWrapper.wrapPageHolder(businessPage);
+    }
+
+    @Override
+    public Long countBusinessesByUserId(Long authorizedUserId) {
+        Assert.isTrue(authorizedUserId != null && authorizedUserId > 0, "Authorized user ID must be valid");
+        return businessRepository.countBusinessesByUserId(authorizedUserId);
     }
 }
 //@Getter

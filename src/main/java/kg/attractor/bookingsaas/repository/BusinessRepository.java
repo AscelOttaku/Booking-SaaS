@@ -17,14 +17,17 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
                 s as services
                 from Book b
                 join b.user u
-                join b.services s
+                join b.schedule sc
+                join sc.service s
                 join s.business bs
                 where bs.id = :businessId
             """)
     List<UserBusinessServiceProjection> getUserBusinessServiceBookByBusinessId(Long businessId);
 
-    @Query("SELECT b FROM Business b WHERE b.title LIKE %?1%")
+    @Query("SELECT b FROM Business b WHERE b.title LIKE %:name%")
     List<Business> findByNameContaining(String name);
 
     boolean existsByTitle(String title);
+
+    Long countBusinessesByUserId(Long authorizedUserId);
 }

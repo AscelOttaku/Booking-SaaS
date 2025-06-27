@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.attractor.bookingsaas.dto.BusinessDto;
+import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.bussines.BusinessCreateResponse;
 import kg.attractor.bookingsaas.dto.bussines.BusinessInfoRequest;
 import kg.attractor.bookingsaas.dto.bussines.BusinessSummaryResponse;
@@ -27,8 +28,10 @@ public class BusinessApi {
     @Operation(
             summary = "Получение списка бизнесов",
             description = "Получение списка всех доступных бизнесов")
-    public List<BusinessSummaryResponse> getAllBusinesses() {
-        return businessService.getBusinessList();
+    public PageHolder<BusinessSummaryResponse> getAllBusinesses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return businessService.getBusinessList(page, size);
     }
 
     @GetMapping("/search")

@@ -1,17 +1,13 @@
 package kg.attractor.bookingsaas.dto;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
-import kg.attractor.bookingsaas.dto.booked.BookDto;
+import jakarta.validation.constraints.*;
 import kg.attractor.bookingsaas.markers.OnCreate;
 import kg.attractor.bookingsaas.markers.OnUpdate;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -27,5 +23,11 @@ public class ServiceDto {
     @NotNull(groups = OnCreate.class, message = "Business ID must not be null")
     private Long businessId;
 
-    private List<@Valid BookDto> books;
+    @NotNull(groups = OnCreate.class, message = "Duration must not be null")
+    @Min(groups = OnCreate.class, value = 7, message = "Duration must be at least 7 minutes")
+    private Integer duration;
+
+    @NotNull(groups = OnCreate.class, message = "Price must not be null")
+    @Positive(groups = OnCreate.class, message = "Price must be a positive number")
+    private BigDecimal price;
 }
