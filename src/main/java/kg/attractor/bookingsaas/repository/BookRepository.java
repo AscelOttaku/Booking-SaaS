@@ -1,5 +1,8 @@
 package kg.attractor.bookingsaas.repository;
 
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
 import kg.attractor.bookingsaas.models.Book;
 import org.springframework.data.domain.Page;
@@ -8,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -33,4 +37,11 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "join s.business bs" +
             " where b.user.id = :userId and b.finishedAt is not null and b.finishedAt < CURRENT_TIMESTAMP")
     Page<BookHistoryDto> findAllUsersBookedHistory(Long userId, Pageable pageable);
+
+    @Query("select count(b) from Book b " +
+            "join b.schedule s " +
+            "where b.schedule.id = :scheduleId " +
+            "and b.startedAt < :finishedAt " +
+            "and b.finishedAt > :startedAt ")
+    long isBookAvailable(Long scheduleId, LocalDateTime startedAt, LocalDateTime finishedAt);
 }

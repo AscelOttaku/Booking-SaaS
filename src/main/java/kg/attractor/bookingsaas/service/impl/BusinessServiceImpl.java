@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,5 +119,11 @@ public class BusinessServiceImpl implements BusinessService {
                     return response;
                 });
         return pageHolderWrapper.wrapPageHolder(businessPage);
+    }
+
+    @Override
+    public Long countBusinessesByUserId(Long authorizedUserId) {
+        Assert.isTrue(authorizedUserId != null && authorizedUserId > 0, "Authorized user ID must be valid");
+        return businessRepository.countBusinessesByUserId(authorizedUserId);
     }
 }

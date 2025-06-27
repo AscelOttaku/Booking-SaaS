@@ -27,5 +27,5 @@ public class ScheduleServiceDto {
 
     @NotNull(message = "Schedule list must not be null")
     @NotEmpty(message = "Schedule list must not be empty")
-    List<@Valid ScheduleDto> scheduleDtos;
+    List<@Valid DailyScheduleDto> dailyScheduleDtos;
 }

@@ -22,4 +22,6 @@ public interface BusinessService {
     boolean isBusinessTitleIsUnique(String title);
 
     PageHolder<BusinessSummaryResponse> getBusinessList(int page, int size);
+
+    Long countBusinessesByUserId(Long authorizedUserId);
 }

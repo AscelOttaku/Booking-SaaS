@@ -15,7 +15,7 @@ import java.time.LocalTime;
 @Setter
 @Builder
 @DurationAtLeastOneHour(message = "Start time and end time must be at least one hour apart")
-public class ScheduleDto {
+public class DailyScheduleDto {
 
     @Schema(description = "ID of the schedule", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
@@ -23,6 +23,10 @@ public class ScheduleDto {
     @NotNull(message = "Day of week ID must not be null")
     @Schema(description = "ID of the day of week", example = "3")
     private Long dayOfWeekId;
+
+    @NotNull(message = "Service ID must not be null")
+    @Schema(description = "ID of the service", example = "2")
+    private Long serviceId;
 
     @NotNull(message = "Start time must not be null")
     @Schema(description = "Start time (HH:mm:ss)", example = "09:00:00")
@@ -32,8 +36,7 @@ public class ScheduleDto {
     @Schema(description = "End time (HH:mm:ss)", example = "18:00:00")
     private LocalTime endTime;
 
-    @NotNull(message = "Availability must not be null")
-    @Schema(description = "Is the schedule available", example = "true")
+    @Schema(description = "Is the schedule available", example = "true", accessMode = Schema.AccessMode.READ_ONLY)
     private Boolean isAvailable;
 
     @NotNull(message = "Maximum booking size must not be null")

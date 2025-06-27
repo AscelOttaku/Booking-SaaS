@@ -47,13 +47,6 @@ CREATE TABLE bussines (
     business_email VARCHAR(255)
 );
 
--- Таблица BUSINESS_UNDER_CATEGORIES
-CREATE TABLE business_under_categories (
-    id BIGSERIAL PRIMARY KEY,
-    business_id BIGINT NOT NULL,
-    name VARCHAR(255) NOT NULL
-);
-
 -- Таблица SERVICES
 CREATE TABLE services (
     id BIGSERIAL PRIMARY KEY,
@@ -89,19 +82,11 @@ CREATE TABLE books (
     finished_at TIMESTAMP NOT NULL
 );
 
--- Таблица USER_SERVICE
-CREATE TABLE user_service (
-    id BIGSERIAL PRIMARY KEY,
-    service_id BIGINT NOT NULL,
-    user_id BIGINT NOT NULL,
-    CONSTRAINT unq_user_service UNIQUE (user_id, service_id)
-);
-
 -- Таблица BUSINESS_REVIEW
 CREATE TABLE business_review (
     id BIGSERIAL PRIMARY KEY,
-    business_id INT NOT NULL,
-    user_id INT NOT NULL,
+    business_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
     review_text VARCHAR(255) NOT NULL,
     rating DECIMAL(2,1) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -132,9 +117,6 @@ ALTER TABLE bussines
 ALTER TABLE bussines
     ADD CONSTRAINT fk_bussines_city FOREIGN KEY (city_id) REFERENCES city(id);
 
-ALTER TABLE business_under_categories
-    ADD CONSTRAINT fk_business_under_categories FOREIGN KEY (business_id) REFERENCES bussines(id);
-
 ALTER TABLE services
     ADD CONSTRAINT fk_services_bussines FOREIGN KEY (bussines_id) REFERENCES bussines(id);
 
@@ -143,10 +125,6 @@ ALTER TABLE schedule
 
 ALTER TABLE books
     ADD CONSTRAINT fk_books_service FOREIGN KEY (service_id) REFERENCES services(id);
-
-ALTER TABLE user_service
-    ADD CONSTRAINT fk_user_service_user FOREIGN KEY (user_id) REFERENCES users(id),
-    ADD CONSTRAINT fk_user_service_service FOREIGN KEY (service_id) REFERENCES services(id);
 
 ALTER TABLE business_review
     ADD CONSTRAINT fk_review_business FOREIGN KEY (business_id) REFERENCES bussines(id),

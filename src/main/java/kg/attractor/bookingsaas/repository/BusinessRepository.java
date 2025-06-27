@@ -28,4 +28,6 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
     List<Business> findByNameContaining(String name);
 
     boolean existsByTitle(String title);
+
+    Long countBusinessesByUserId(Long authorizedUserId);
 }

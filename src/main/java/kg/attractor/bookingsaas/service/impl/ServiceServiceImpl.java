@@ -9,6 +9,7 @@ import kg.attractor.bookingsaas.repository.ServiceRepository;
 import kg.attractor.bookingsaas.service.AuthorizedUserService;
 import kg.attractor.bookingsaas.service.BusinessService;
 import kg.attractor.bookingsaas.service.ServiceService;
+import kg.attractor.bookingsaas.service.ServiceValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +23,7 @@ import java.util.NoSuchElementException;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
-public class ServiceServiceImpl implements ServiceService {
+public class ServiceServiceImpl implements ServiceService, ServiceValidator {
     private final ServiceRepository serviceRepository;
     private final BusinessService businessService;
     private final ServiceMapper serviceMapper;
@@ -81,5 +82,11 @@ public class ServiceServiceImpl implements ServiceService {
         return serviceRepository.findById(serviceId)
                 .map(serviceMapper::mapToDto)
                 .orElseThrow(() -> new NoSuchElementException("Service not found with id: " + serviceId));
+    }
+
+    @Override
+    public void checkIfServiceExistsById(Long serviceId) {
+        if (!serviceRepository.existsById(serviceId))
+            throw new NoSuchElementException("Service not found with id: " + serviceId);
     }
 }

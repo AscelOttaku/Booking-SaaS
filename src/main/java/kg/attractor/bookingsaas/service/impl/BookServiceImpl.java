@@ -5,8 +5,11 @@ import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
 import kg.attractor.bookingsaas.dto.mapper.impl.BookMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
+import kg.attractor.bookingsaas.models.Book;
 import kg.attractor.bookingsaas.repository.BookRepository;
 import kg.attractor.bookingsaas.service.BookService;
+import kg.attractor.bookingsaas.service.ScheduleService;
+import kg.attractor.bookingsaas.service.ScheduleValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +26,8 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
     private final PageHolderWrapper pageHolderWrapper;
+    private final ScheduleValidator scheduleValidator;
+    private final ScheduleService scheduleService;
 
     @Override
     public List<BookDto> findAllBooksByServiceId(Long serviceId) {
@@ -48,5 +53,19 @@ public class BookServiceImpl implements BookService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("finishedAt").descending());
         Page<BookHistoryDto> bookPages = bookRepository.findAllUsersBookedHistory(userId, pageable);
         return pageHolderWrapper.wrapPageHolder(bookPages);
+    }
+
+    @Override
+    public BookDto createBook(BookDto bookDto) {
+        Assert.notNull(bookDto, "bookDto must not be null");
+        scheduleValidator.checkScheduleExistsById(bookDto.getScheduleId());
+        long bookedCount = bookRepository.isBookAvailable(bookDto.getScheduleId(), bookDto.getStartedAt(), bookDto.getFinishedAt());
+        long maxBookingSizeByScheduleId = scheduleService.findMaxBookingSizeByScheduleId(bookDto.getScheduleId());
+        if (bookedCount >= maxBookingSizeByScheduleId) {
+            throw new IllegalArgumentException("The schedule is fully booked for the selected time.");
+        }
+
+        Book book = bookMapper.toEntity(bookDto);
+        return bookMapper.toDto(book);
     }
 }

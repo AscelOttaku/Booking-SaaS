@@ -18,7 +18,7 @@ public class Schedule {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "day_of_week_id", nullable = false)
-    private DayOfWeekEntity dayOfWeek;
+    private DayOfWeek dayOfWeek;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "bussines_service_id", nullable = false)
