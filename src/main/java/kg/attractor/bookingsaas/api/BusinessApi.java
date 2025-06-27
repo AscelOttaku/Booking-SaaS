@@ -34,15 +34,15 @@ public class BusinessApi {
         return businessService.getBusinessList(page, size);
     }
 
-    @GetMapping("/search")
-    @Operation(
-            summary = "Поиск бизнесов",
-            description = "Поиск бизнесов по названию")
-    public List<BusinessSummaryResponse> searchBusinesses(
-            @Parameter(description = "Название бизнеса для поиска")
-            @RequestParam(required = false) String name) {
-        return businessService.searchBusiness(name);
-    }
+//    @GetMapping("/search")
+//    @Operation(
+//            summary = "Поиск бизнесов",
+//            description = "Поиск бизнесов по названию")
+//    public List<BusinessSummaryResponse> searchBusinesses(
+//            @Parameter(description = "Название бизнеса для поиска")
+//            @RequestParam(required = false) String name) {
+//        return businessService.searchBusiness(name);
+//    }
 
     @GetMapping("/{id}")
     @Operation(
@@ -54,13 +54,13 @@ public class BusinessApi {
         return businessService.getBusinessById(id);
     }
 
-    @PreAuthorize("hasAuthority('BUSINESS_OWNER')")
-    @PostMapping
-    @Operation(
-            summary = "Создание бизнеса",
-            description = "Создание бизнеса с указанием названия и описания," +
-                    " создать бизнес сможет только пользователь с ролью BUSINESS_OWNER")
-    public BusinessCreateResponse createBusiness(@Valid @RequestBody BusinessInfoRequest businessInfo) {
-        return businessService.createBusiness(businessInfo);
-    }
+//    @PreAuthorize("hasAuthority('BUSINESS_OWNER')")
+//    @PostMapping
+//    @Operation(
+//            summary = "Создание бизнеса",
+//            description = "Создание бизнеса с указанием названия и описания," +
+//                    " создать бизнес сможет только пользователь с ролью BUSINESS_OWNER")
+//    public BusinessCreateResponse createBusiness(@Valid @RequestBody BusinessInfoRequest businessInfo) {
+//        return businessService.createBusiness(businessInfo);
+//    }
 }

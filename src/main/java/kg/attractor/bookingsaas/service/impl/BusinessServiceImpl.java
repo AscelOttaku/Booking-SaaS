@@ -12,6 +12,7 @@ import kg.attractor.bookingsaas.models.*;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
 import kg.attractor.bookingsaas.models.Business;
 import kg.attractor.bookingsaas.repository.BusinessRepository;
+import kg.attractor.bookingsaas.repository.ServiceRepository;
 import kg.attractor.bookingsaas.service.BusinessService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -68,14 +69,22 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
-    public List<BusinessSummaryResponse> getBusinessList() {
-        log.info("Получение списка бизнесов");
-        List<Business> businessList = businessRepository.findAll();
-
-        List<BusinessSummaryResponse> businessSummaryResponseList = getBusinessList(businessList);
-
-        log.info("Список бизнесов получен успешно");
-        return businessSummaryResponseList;
+    public PageHolder<BusinessSummaryResponse> getBusinessList(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<BusinessSummaryResponse> businessPage = businessRepository.findAll(pageRequest)
+                .map(business -> {
+                    BusinessSummaryResponse response = new BusinessSummaryResponse();
+                    response.setId(business.getId());
+                    response.setLogo(business.getLogo());
+                    response.setAddress(business.getBusinessAddress());
+                    response.setCity(business.getCity().getName());
+                    response.setBusinessCategory(business.getBusinessCategory().getName());
+//                    response.setBusinessUnderCategory(businessRepository.getBusinessUnderCategoryNames(business.getId()));
+                    response.setTitle(business.getTitle());
+                    response.setDescription(business.getDescription());
+                    return response;
+                });
+        return pageHolderWrapper.wrapPageHolder(businessPage);
     }
 
 //    @Override
@@ -165,19 +174,6 @@ public class BusinessServiceImpl implements BusinessService {
         return !businessRepository.existsByTitle(title);
     }
 
-    @Override
-    public PageHolder<BusinessSummaryResponse> getBusinessList(int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        Page<BusinessSummaryResponse> businessPage = businessRepository.findAll(pageRequest)
-                .map(business -> {
-                    BusinessSummaryResponse response = new BusinessSummaryResponse();
-                    response.setId(business.getId());
-                    response.setTitle(business.getTitle());
-                    response.setDescription(business.getDescription());
-                    return response;
-                });
-        return pageHolderWrapper.wrapPageHolder(businessPage);
-    }
 
     @Override
     public Long countBusinessesByUserId(Long authorizedUserId) {
