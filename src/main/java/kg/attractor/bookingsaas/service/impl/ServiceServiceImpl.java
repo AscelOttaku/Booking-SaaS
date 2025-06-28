@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -88,5 +89,15 @@ public class ServiceServiceImpl implements ServiceService, ServiceValidator {
     public void checkIfServiceExistsById(Long serviceId) {
         if (!serviceRepository.existsById(serviceId))
             throw new NoSuchElementException("Service not found with id: " + serviceId);
+    }
+
+    @Override
+    public void checkServiceBelongsToAuthUser(Long serviceId) {
+        var service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new NoSuchElementException("Service not found with id: " + serviceId));
+
+        Long businessOwnerId = service.getBusiness().getUser().getId();
+        if (!Objects.equals(businessOwnerId, authorizedUserService.getAuthorizedUserId()))
+            throw new IllegalArgumentException("You do not have permission to access this service");
     }
 }

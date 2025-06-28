@@ -4,6 +4,7 @@ import kg.attractor.bookingsaas.dto.DayOfWeekDto;
 import kg.attractor.bookingsaas.dto.mapper.DayOfWeekMapper;
 import kg.attractor.bookingsaas.repository.DayOfWeekRepository;
 import kg.attractor.bookingsaas.service.DayOfWeekService;
+import kg.attractor.bookingsaas.service.DayOfWeekValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
-public class DayOfWeekServiceImpl implements DayOfWeekService {
+public class DayOfWeekServiceImpl implements DayOfWeekService, DayOfWeekValidator {
     private final DayOfWeekRepository dayOfWeekRepository;
     private final DayOfWeekMapper dayOfWeekMapper;
 

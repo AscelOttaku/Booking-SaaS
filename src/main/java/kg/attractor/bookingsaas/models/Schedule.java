@@ -35,4 +35,7 @@ public class Schedule {
 
     @Column(name = "max_booking_size", nullable = false)
     private Integer maxBookingSize;
+
+    @OneToOne(mappedBy = "schedule", cascade = {CascadeType.PERSIST})
+    private ScheduleSettings scheduleSettings;
 }

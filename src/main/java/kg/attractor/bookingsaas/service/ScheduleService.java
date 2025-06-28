@@ -1,6 +1,7 @@
 package kg.attractor.bookingsaas.service;
 
 import kg.attractor.bookingsaas.dto.DailyScheduleDto;
+import kg.attractor.bookingsaas.dto.ScheduleTimeDto;
 import kg.attractor.bookingsaas.dto.WeeklyScheduleDto;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -12,5 +13,11 @@ public interface ScheduleService {
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     WeeklyScheduleDto createWeeklySchedule(WeeklyScheduleDto weeklyScheduleDto);
 
+    DailyScheduleDto updateDailySchedule(DailyScheduleDto dailyScheduleDto);
+
+    WeeklyScheduleDto updateWeeklySchedule(WeeklyScheduleDto weeklyScheduleDto);
+
     Long findMaxBookingSizeByScheduleId(Long scheduleId);
+
+    ScheduleTimeDto findScheduleTimeById(Long id);
 }

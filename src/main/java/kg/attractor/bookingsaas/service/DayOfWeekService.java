@@ -4,6 +4,4 @@ import kg.attractor.bookingsaas.dto.DayOfWeekDto;
 
 public interface DayOfWeekService {
     DayOfWeekDto findDayOfWeekById(Long id);
-
-    void checkDayOfWeekExists(Long id);
 }
