@@ -79,8 +79,7 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
                 .orElseThrow(() -> new NoSuchElementException("Schedule with ID " + dailyScheduleDto.getId() + " does not exist"));
 
         scheduleMapper.updateFrom(dailyScheduleDto, existingSchedule);
-        var updatedSchedule = scheduleRepository.save(existingSchedule);
-        return scheduleMapper.mapToDto(updatedSchedule);
+        return scheduleMapper.mapToDto(existingSchedule);
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
@@ -96,7 +95,6 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
             var existingSchedule = scheduleRepository.findById(schedule.getId())
                     .orElseThrow(() -> new NoSuchElementException("Schedule with ID " + schedule.getId() + " does not exist"));
             scheduleMapper.updateFrom(schedule, existingSchedule);
-            scheduleRepository.save(existingSchedule);
         });
 
         return weeklyScheduleDto;
