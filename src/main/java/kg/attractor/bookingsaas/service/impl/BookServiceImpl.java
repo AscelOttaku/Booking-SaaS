@@ -1,7 +1,7 @@
 package kg.attractor.bookingsaas.service.impl;
 
-import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.PageHolder;
+import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
 import kg.attractor.bookingsaas.dto.mapper.impl.BookMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
@@ -18,6 +18,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -59,13 +61,28 @@ public class BookServiceImpl implements BookService {
     public BookDto createBook(BookDto bookDto) {
         Assert.notNull(bookDto, "bookDto must not be null");
         scheduleValidator.checkScheduleExistsById(bookDto.getScheduleId());
-        long bookedCount = bookRepository.isBookAvailable(bookDto.getScheduleId(), bookDto.getStartedAt(), bookDto.getFinishedAt());
+
+        // Adding duration of breaks to the booking time
+        int durationInMinutes = scheduleService.findDurationBetweenBooksByScheduleId(bookDto.getScheduleId());
+        LocalDateTime startedAt = bookDto.getStartedAt().minusMinutes(durationInMinutes);
+        LocalDateTime finishedAt = bookDto.getFinishedAt().plusMinutes(durationInMinutes);
+
+        // Check if the book time is available
+        long bookedCount = bookRepository.findBooksWithConflictTimesByScheduleId(bookDto.getScheduleId(), startedAt, finishedAt);
         long maxBookingSizeByScheduleId = scheduleService.findMaxBookingSizeByScheduleId(bookDto.getScheduleId());
         if (bookedCount >= maxBookingSizeByScheduleId) {
             throw new IllegalArgumentException("The schedule is fully booked for the selected time.");
         }
 
+        // Check for break conflicts
+        LocalTime startedAtTime = bookDto.getStartedAt().toLocalTime();
+        LocalTime finishedAtTime = bookDto.getFinishedAt().toLocalTime();
+        boolean hasBreakConflicts = bookRepository.checkForBreakConflicts(bookDto.getScheduleId(), startedAtTime, finishedAtTime);
+        if (hasBreakConflicts)
+            throw new IllegalArgumentException("The booking time conflicts with a break period.");
+
         Book book = bookMapper.toEntity(bookDto);
+        bookRepository.save(book);
         return bookMapper.toDto(book);
     }
 }

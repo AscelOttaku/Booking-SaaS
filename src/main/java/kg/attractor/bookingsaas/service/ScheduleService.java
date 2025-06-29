@@ -22,4 +22,6 @@ public interface ScheduleService {
     ScheduleTimeDto findScheduleTimeById(Long id);
 
     void deleteDailyScheduleById(Long id);
+
+    int findDurationBetweenBooksByScheduleId(Long scheduleId);
 }

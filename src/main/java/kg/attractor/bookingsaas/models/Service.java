@@ -23,9 +23,6 @@ public class Service {
     @JoinColumn(name = "bussines_id", nullable = false)
     private Business business;
 
-    @Column(name = "duration_in_min", nullable = false)
-    private Integer duration;
-
     @Column(name = "price", nullable = false, columnDefinition = "decimal(10,2)")
     private BigDecimal price;
 }
