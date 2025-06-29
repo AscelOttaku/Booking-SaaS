@@ -20,4 +20,6 @@ public interface ScheduleService {
     Long findMaxBookingSizeByScheduleId(Long scheduleId);
 
     ScheduleTimeDto findScheduleTimeById(Long id);
+
+    void deleteDailyScheduleById(Long id);
 }

@@ -58,6 +58,7 @@ public class ScheduleSettingsMapper {
             scheduleSettings.setBreakBetweenBookings(scheduleSettingsDto.getBreakBetweenBookings());
         }
         if (scheduleSettingsDto.getBreakPeriodDto() != null) {
+            scheduleSettings.getBreakPeriods().clear();
             scheduleSettings.setBreakPeriods(
                     scheduleSettingsDto.getBreakPeriodDto().stream()
                             .map(breakPeriodDto -> {

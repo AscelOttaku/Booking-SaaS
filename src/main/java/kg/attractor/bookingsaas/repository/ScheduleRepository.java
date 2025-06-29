@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -26,4 +27,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query("select new kg.attractor.bookingsaas.dto.ScheduleTimeDto(s.startTime, s.endTime, s.id) " +
             "from Schedule s where s.id = :id")
     ScheduleTimeDto findScheduleTimeById(Long id);
+
+    List<Schedule> findAllByServiceId(Long serviceId);
 }

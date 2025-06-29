@@ -1,47 +1,44 @@
 package kg.attractor.bookingsaas.service.impl;
 
-import jakarta.persistence.*;
 import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.PageHolder;
-import kg.attractor.bookingsaas.dto.bussines.BusinessCreateResponse;
-import kg.attractor.bookingsaas.dto.bussines.BusinessInfoRequest;
 import kg.attractor.bookingsaas.dto.bussines.BusinessSummaryResponse;
 import kg.attractor.bookingsaas.dto.mapper.impl.BusinessMapper;
-import kg.attractor.bookingsaas.exceptions.NotFoundException;
-import kg.attractor.bookingsaas.models.*;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
 import kg.attractor.bookingsaas.models.Business;
+import kg.attractor.bookingsaas.models.BusinessUnderCategory;
 import kg.attractor.bookingsaas.repository.BusinessRepository;
-import kg.attractor.bookingsaas.repository.ServiceRepository;
+import kg.attractor.bookingsaas.service.AuthorizedUserService;
 import kg.attractor.bookingsaas.service.BusinessService;
-import lombok.Getter;
+import kg.attractor.bookingsaas.service.BusinessValidator;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static kg.attractor.bookingsaas.enums.RoleEnum.BUSINESS_OWNER;
-
-
 @RequiredArgsConstructor
 @org.springframework.stereotype.Service
 @Slf4j
-public class BusinessServiceImpl implements BusinessService {
+public class BusinessServiceImpl implements BusinessService, BusinessValidator {
     private final BusinessRepository businessRepository;
-    private final ServiceRepository serviceRepository;
     private final BusinessMapper businessMapper;
     private final PageHolderWrapper pageHolderWrapper;
+    private final AuthorizedUserService authorizedUserService;
 
-    private User getAuthUser() {
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    @Override
+    public void checkIsBusinessBelongsToAuthUser(Long businessId) {
+        Assert.notNull(businessId, "Business ID must not be null");
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new NoSuchElementException("Business not found by ID: " + businessId));
+        Long ownerId = business.getUser().getId();
+        if (!ownerId.equals(authorizedUserService.getAuthorizedUserId())) {
+            throw new SecurityException("You do not have permission to access this business");
+        }
     }
 
     private List<BusinessSummaryResponse> getBusinessList(List<Business> businessList) {

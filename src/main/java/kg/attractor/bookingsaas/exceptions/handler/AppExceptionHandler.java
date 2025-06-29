@@ -10,11 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.lang.IllegalArgumentException;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 @Slf4j
@@ -23,7 +23,6 @@ public class AppExceptionHandler {
     private final ErrorService errorService;
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     private ValidationExceptionBody handleValidationException(
             MethodArgumentNotValidException ex, HttpServletRequest request
     ) {
@@ -31,7 +30,6 @@ public class AppExceptionHandler {
     }
 
     @ExceptionHandler(AlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<ExceptionResponse> handleAlreadyExistsException(AlreadyExistsException e) {
         ExceptionResponse response = ExceptionResponse.builder()
                 .exceptionClassName(e.getClass().getSimpleName())
@@ -42,7 +40,6 @@ public class AppExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ExceptionResponse> handleNotFoundException(NotFoundException e) {
         ExceptionResponse response = ExceptionResponse.builder()
                 .exceptionClassName(e.getClass().getSimpleName())
@@ -52,9 +49,8 @@ public class AppExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ResponseEntity<ExceptionResponse> handleBadCredentialsException(BadCredentialsException e) {
+    @ExceptionHandler({BadCredentialsException.class, SecurityException.class})
+    public ResponseEntity<ExceptionResponse> handleBadCredentialsException(RuntimeException e) {
         ExceptionResponse response = ExceptionResponse.builder()
                 .exceptionClassName(e.getClass().getSimpleName())
                 .httpStatus(HttpStatus.FORBIDDEN)
@@ -64,7 +60,6 @@ public class AppExceptionHandler {
     }
 
     @ExceptionHandler(InvalidPasswordException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ExceptionResponse> handleInvalidPasswordException(InvalidPasswordException e) {
         ExceptionResponse response = ExceptionResponse.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
@@ -74,9 +69,16 @@ public class AppExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+    @ExceptionHandler({IllegalArgumentException.class, NoSuchElementException.class})
+    public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(RuntimeException e) {
+        if (e instanceof IllegalArgumentException) {
+            return handleIllegalArgument(e);
+        } else {
+            return handleNoSuchElementException(e);
+        }
+    }
+
+    private static ResponseEntity<ExceptionResponse> handleIllegalArgument(RuntimeException e) {
         ExceptionResponse response = ExceptionResponse.builder()
                 .httpStatus(HttpStatus.CONFLICT)
                 .exceptionClassName(e.getClass().getSimpleName())
@@ -85,14 +87,17 @@ public class AppExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(HttpClientErrorException.Conflict.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<ExceptionResponse> handleHttpClientErrorExceptionConflict(HttpClientErrorException.Conflict e) {
+    private static ResponseEntity<ExceptionResponse> handleNoSuchElementException(RuntimeException e) {
         ExceptionResponse response = ExceptionResponse.builder()
-                .httpStatus(HttpStatus.CONFLICT)
+                .httpStatus(HttpStatus.NOT_FOUND)
                 .exceptionClassName(e.getClass().getSimpleName())
                 .message(e.getMessage())
                 .build();
-        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(HttpClientErrorException.Conflict.class)
+    public ResponseEntity<ExceptionResponse> handleHttpClientErrorExceptionConflict(HttpClientErrorException.Conflict e) {
+        return handleIllegalArgument(e);
     }
 }

@@ -1,6 +1,7 @@
 package kg.attractor.bookingsaas.dto.mapper.impl;
 
 import kg.attractor.bookingsaas.dto.ServiceDto;
+import kg.attractor.bookingsaas.models.Business;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,10 @@ public class ServiceMapper {
         service.setServiceName(dto.getServiceName());
         service.setDuration(dto.getDuration());
         service.setPrice(dto.getPrice());
+
+        Business business = new Business();
+        business.setId(dto.getBusinessId());
+        service.setBusiness(business);
         return service;
     }
 

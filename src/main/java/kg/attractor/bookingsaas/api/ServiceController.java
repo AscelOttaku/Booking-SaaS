@@ -11,6 +11,7 @@ import kg.attractor.bookingsaas.markers.OnUpdate;
 import kg.attractor.bookingsaas.service.ServiceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ public class ServiceController {
             content = @Content)
     @ApiResponse(responseCode = "404", description = "Service not found (NoSuchElementException)",
             content = @Content)
+    @PreAuthorize("hasAnyAuthority('BUSINESS_OWNER')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ServiceDto createService(@Validated(OnCreate.class) @RequestBody ServiceDto serviceDto) {
@@ -46,6 +48,7 @@ public class ServiceController {
             content = @Content)
     @ApiResponse(responseCode = "404", description = "Service not found (NoSuchElementException)",
             content = @Content)
+    @PreAuthorize("hasAnyAuthority('BUSINESS_OWNER')")
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public ServiceDto updateService(@Validated(OnUpdate.class) @RequestBody ServiceDto dto) {
@@ -62,6 +65,7 @@ public class ServiceController {
             content = @Content)
     @ApiResponse(responseCode = "400", description = "Invalid service ID or illegal argument",
             content = @Content)
+    @PreAuthorize("hasAnyAuthority('BUSINESS_OWNER')")
     @DeleteMapping
     @ResponseStatus(HttpStatus.OK)
     public ServiceDto deleteService(@RequestParam Long serviceId) {

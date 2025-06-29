@@ -3,6 +3,7 @@ package kg.attractor.bookingsaas.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Null;
+import kg.attractor.bookingsaas.annotations.DurationAtLeastFiveMinutes;
 import kg.attractor.bookingsaas.markers.OnCreate;
 import kg.attractor.bookingsaas.markers.OnUpdate;
 import lombok.Builder;
@@ -14,6 +15,8 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @Builder
+@DurationAtLeastFiveMinutes(groups = {OnCreate.class, OnUpdate.class},
+        message = "The duration between start and end should be at least 5 minutes")
 public class BreakPeriodDto {
 
     @Null(groups = OnCreate.class, message = "ID must be null when creating")

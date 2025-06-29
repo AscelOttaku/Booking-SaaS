@@ -45,6 +45,7 @@ public class DailyScheduleDto {
     @Min(value = 1, groups = {OnCreate.class, OnUpdate.class}, message = "Maximum booking size must be at least 1")
     private Integer maxBookingSize;
 
+    @NotNull(groups = {OnCreate.class}, message = "Schedule settings must not be null")
     @Valid
     private ScheduleSettingsDto scheduleSettingsDto;
 }
