@@ -23,10 +23,6 @@ public class ServiceDto {
     @NotNull(groups = OnCreate.class, message = "Business ID must not be null")
     private Long businessId;
 
-    @NotNull(groups = OnCreate.class, message = "Duration must not be null")
-    @Min(groups = OnCreate.class, value = 7, message = "Duration must be at least 7 minutes")
-    private Integer duration;
-
     @NotNull(groups = OnCreate.class, message = "Price must not be null")
     @Positive(groups = OnCreate.class, message = "Price must be a positive number")
     private BigDecimal price;

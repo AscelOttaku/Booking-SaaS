@@ -144,4 +144,15 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
         serviceService.checkServiceBelongsToAuthUser(schedule.getService().getId());
         scheduleRepository.deleteById(id);
     }
+
+    @Override
+    public int findDurationBetweenBooksByScheduleId(Long scheduleId) {
+        Assert.notNull(scheduleId, "scheduleId must not be null");
+
+        if (!scheduleRepository.existsById(scheduleId)) {
+            throw new NoSuchElementException("Schedule with ID " + scheduleId + " does not exist");
+        }
+
+        return scheduleRepository.findScheduleDurationById(scheduleId);
+    }
 }

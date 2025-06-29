@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -29,4 +28,9 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     ScheduleTimeDto findScheduleTimeById(Long id);
 
     List<Schedule> findAllByServiceId(Long serviceId);
+
+    @Query("select ss.breakBetweenBookings from ScheduleSettings ss " +
+            "join ss.schedule s " +
+            "where s.service.id = :serviceId and s.isAvailable = true")
+    int findScheduleDurationById(Long scheduleId);
 }

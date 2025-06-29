@@ -17,11 +17,9 @@ public abstract class UserDto {
     private String firstName;
 
     @Schema(description = "Отчество пользователя", example = "johndoe")
-    @NotBlank
     private String middleName;
 
     @Schema(description = "Фамилия пользователя", example = "johndoe")
-    @NotBlank
     private String lastName;
 
     @Schema(description = "телефон пользователя", example = "+996501198751")
@@ -30,7 +28,6 @@ public abstract class UserDto {
     private String phone;
 
     @Schema(description = "Дата рождения", example = "08.04.2014")
-    @NotBlank
     @JsonFormat(pattern = "dd.MM.yyyy")
     private LocalDate birthday;
 }

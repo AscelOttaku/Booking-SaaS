@@ -13,7 +13,6 @@ public class ServiceMapper {
                 .id(service.getId())
                 .serviceName(service.getServiceName())
                 .businessId(service.getBusiness() != null ? service.getBusiness().getId() : null)
-                .duration(service.getDuration())
                 .price(service.getPrice())
                 .build();
     }
@@ -23,7 +22,6 @@ public class ServiceMapper {
                 .id(service.getId())
                 .serviceName(service.getServiceName())
                 .businessId(service.getBusiness() != null ? service.getBusiness().getId() : null)
-                .duration(service.getDuration())
                 .price(service.getPrice())
                 .build();
     }
@@ -35,7 +33,6 @@ public class ServiceMapper {
         kg.attractor.bookingsaas.models.Service service = new kg.attractor.bookingsaas.models.Service();
         service.setId(dto.getId());
         service.setServiceName(dto.getServiceName());
-        service.setDuration(dto.getDuration());
         service.setPrice(dto.getPrice());
 
         Business business = new Business();
@@ -50,9 +47,6 @@ public class ServiceMapper {
         }
         if (dto.getServiceName() != null) {
             existingService.setServiceName(dto.getServiceName());
-        }
-        if (dto.getDuration() != null) {
-            existingService.setDuration(dto.getDuration());
         }
         if (dto.getPrice() != null) {
             existingService.setPrice(dto.getPrice());
