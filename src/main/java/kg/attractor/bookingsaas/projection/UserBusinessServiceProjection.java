@@ -66,5 +66,6 @@ public interface UserBusinessServiceProjection {
         ScheduleInfo getSchedule();
         LocalDateTime getStartedAt();
         LocalDateTime getFinishedAt();
+        UserInfo getUser();
     }
 }

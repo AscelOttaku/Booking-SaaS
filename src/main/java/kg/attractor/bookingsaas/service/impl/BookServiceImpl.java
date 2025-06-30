@@ -5,8 +5,11 @@ import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
 import kg.attractor.bookingsaas.dto.mapper.impl.BookMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
+import kg.attractor.bookingsaas.dto.user.OutputUserDto;
 import kg.attractor.bookingsaas.models.Book;
+import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.repository.BookRepository;
+import kg.attractor.bookingsaas.service.AuthorizedUserService;
 import kg.attractor.bookingsaas.service.BookService;
 import kg.attractor.bookingsaas.service.ScheduleService;
 import kg.attractor.bookingsaas.service.ScheduleValidator;
@@ -30,6 +33,7 @@ public class BookServiceImpl implements BookService {
     private final PageHolderWrapper pageHolderWrapper;
     private final ScheduleValidator scheduleValidator;
     private final ScheduleService scheduleService;
+    private final AuthorizedUserService authorizedUserService;
 
     @Override
     public List<BookDto> findAllBooksByServiceId(Long serviceId) {
@@ -82,7 +86,9 @@ public class BookServiceImpl implements BookService {
             throw new IllegalArgumentException("The booking time conflicts with a break period.");
 
         Book book = bookMapper.toEntity(bookDto);
-        bookRepository.save(book);
-        return bookMapper.toDto(book);
+        User authUser = (User) authorizedUserService.getAuthUser();
+        book.setUser(authUser);
+        Book save = bookRepository.save(book);
+        return bookMapper.toDto(save);
     }
 }

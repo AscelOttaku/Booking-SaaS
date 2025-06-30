@@ -10,9 +10,11 @@ import jakarta.validation.Valid;
 import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
+import kg.attractor.bookingsaas.markers.OnCreate;
 import kg.attractor.bookingsaas.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -126,7 +128,7 @@ public class BookApi {
     @ResponseStatus(HttpStatus.CREATED)
     public BookDto createBook(
             @Parameter(description = "Booking data to create", required = true)
-            @RequestBody @Valid BookDto bookDto) {
+            @RequestBody @Validated(OnCreate.class) BookDto bookDto) {
         return bookService.createBook(bookDto);
     }
 }

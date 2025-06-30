@@ -31,6 +31,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     @Query("select ss.breakBetweenBookings from ScheduleSettings ss " +
             "join ss.schedule s " +
-            "where s.service.id = :serviceId and s.isAvailable = true")
+            "where s.id = :scheduleId and s.isAvailable = true")
     int findScheduleDurationById(Long scheduleId);
 }
