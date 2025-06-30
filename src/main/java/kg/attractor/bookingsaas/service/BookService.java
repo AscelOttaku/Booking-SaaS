@@ -11,7 +11,7 @@ public interface BookService {
 
     PageHolder<BookDto> findAllBooksByBusinessId(Long businesId, int page, int size);
 
-    PageHolder<BookHistoryDto> findAlUsersBookedHistory(Long userId, int page, int size);
+    PageHolder<BookHistoryDto> findAlUsersBookedHistory(int page, int size);
 
     BookDto createBook(BookDto bookDto);
 }

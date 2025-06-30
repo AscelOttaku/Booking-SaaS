@@ -1,6 +1,7 @@
 package kg.attractor.bookingsaas.dto.booked;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kg.attractor.bookingsaas.dto.user.OutputUserDto;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,8 @@ public class BookHistoryDto {
 
     @Schema(description = "Booking ID", example = "1")
     private Long id;
+
+    private OutputUserDto outputUserDto;
 
     @Schema(description = "Service name", example = "Haircut")
     private String serviceName;

@@ -13,6 +13,7 @@ import kg.attractor.bookingsaas.markers.OnCreate;
 import kg.attractor.bookingsaas.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -88,24 +89,19 @@ public class BookApi {
                             responseCode = "200",
                             description = "Successfully retrieved booking history",
                             content = @Content(schema = @Schema(implementation = PageHolder.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "User not found"
                     )
             }
     )
-    @GetMapping("clients/{userId}")
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("client/history")
     @ResponseStatus(HttpStatus.OK)
     public PageHolder<BookHistoryDto> findAlUsersBookedHistory(
-            @Parameter(description = "ID of the user to retrieve booking history for", required = true, example = "1")
-            @PathVariable Long userId,
             @Parameter(description = "Page number (0-based)", example = "0")
             @RequestParam(required = false, defaultValue = "0") int page,
             @Parameter(description = "Number of items per page", example = "10")
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
-        return bookService.findAlUsersBookedHistory(userId, page, size);
+        return bookService.findAlUsersBookedHistory(page, size);
     }
 
     @PostMapping

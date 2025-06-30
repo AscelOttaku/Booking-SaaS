@@ -41,6 +41,17 @@ public class BusinessServiceImpl implements BusinessService, BusinessValidator {
         }
     }
 
+    @Override
+    public void checkIsBusinessBelongsToAuthUser(String businessTitle) {
+        Assert.hasText(businessTitle, "Business title must not be null or blank");
+        Business business = businessRepository.findByTitle(businessTitle)
+                .orElseThrow(() -> new NoSuchElementException("Business not found by title: " + businessTitle));
+        Long ownerId = business.getUser().getId();
+        if (!ownerId.equals(authorizedUserService.getAuthorizedUserId())) {
+            throw new SecurityException("You do not have permission to access this business");
+        }
+    }
+
     private List<BusinessSummaryResponse> getBusinessList(List<Business> businessList) {
         List<BusinessSummaryResponse> businessSummaryResponseList = new ArrayList<>();
 

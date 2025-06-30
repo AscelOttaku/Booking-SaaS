@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BusinessRepository extends JpaRepository<Business, Long> {
@@ -34,4 +35,6 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
 
     @Query("select u.name from Business b join b.businessUnderCategories u where b.id = :id")
     List<String> getBusinessUnderCategoryNames(@Param("id") Long id);
+
+    Optional<Business> findByTitle(String businessTitle);
 }

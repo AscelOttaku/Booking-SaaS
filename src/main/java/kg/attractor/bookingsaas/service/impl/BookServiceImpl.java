@@ -51,10 +51,10 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public PageHolder<BookHistoryDto> findAlUsersBookedHistory(Long userId, int page, int size) {
-        Assert.notNull(userId, "userId must not be null");
+    public PageHolder<BookHistoryDto> findAlUsersBookedHistory(int page, int size) {
+        Long authUserId = authorizedUserService.getAuthorizedUserId();
         Pageable pageable = PageRequest.of(page, size, Sort.by("finishedAt").descending());
-        Page<BookHistoryDto> bookPages = bookRepository.findAllUsersBookedHistory(userId, pageable);
+        Page<BookHistoryDto> bookPages = bookRepository.findAllUsersBookedHistory(authUserId, pageable);
         return pageHolderWrapper.wrapPageHolder(bookPages);
     }
 

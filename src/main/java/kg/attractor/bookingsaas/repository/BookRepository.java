@@ -28,12 +28,18 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Page<Book> findAllBooksByBusinessId(Long businessId, Pageable pageable);
 
     @Query("select new kg.attractor.bookingsaas.dto.booked.BookHistoryDto(" +
-            "b.id, s.serviceName, bs.title, b.startedAt, b.finishedAt" +
+            "b.id, " +
+            "new kg.attractor.bookingsaas.dto.user.OutputUserDto(" +
+            "u.firstName, u.middleName, u.lastName, u.phone, u.email, u.logo, u.role.roleName" +
+            ")," +
+            "s.serviceName, bs.title, b.startedAt, b.finishedAt" +
             ") from Book b " +
             "join b.schedule sc " +
+            "join b.user u " +
+            "join u.role r " +
             "join sc.service s " +
-            "join s.business bs" +
-            " where b.user.id = :userId and b.finishedAt is not null and b.finishedAt < CURRENT_TIMESTAMP")
+            "join s.business bs " +
+            "where u.id = :userId and b.finishedAt is not null and b.finishedAt < CURRENT_TIMESTAMP")
     Page<BookHistoryDto> findAllUsersBookedHistory(Long userId, Pageable pageable);
 
     @Query("select count(b) from Book b " +
