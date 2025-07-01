@@ -17,18 +17,18 @@ public class BusinessReview {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "business_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "business_id")
     private Business business;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false, columnDefinition = "bigint")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "review_text", nullable = false, length = 255)
+    @Column(name = "review_text")
     private String reviewText;
 
-    @Column(nullable = false, precision = 2, scale = 1)
+    @Column(columnDefinition = "numeric")
     private BigDecimal rating;
 
     @Column(name = "created_at", nullable = false, updatable = false)

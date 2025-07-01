@@ -1,6 +1,5 @@
 package kg.attractor.bookingsaas.service.impl;
 
-import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,6 +1,8 @@
 package kg.attractor.bookingsaas.dto.mapper.impl;
 
 import kg.attractor.bookingsaas.dto.ServiceDto;
+import kg.attractor.bookingsaas.models.Business;
+import kg.attractor.bookingsaas.projection.ServiceInfo;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import org.springframework.stereotype.Service;
 
@@ -12,18 +14,18 @@ public class ServiceMapper {
                 .id(service.getId())
                 .serviceName(service.getServiceName())
                 .businessId(service.getBusiness() != null ? service.getBusiness().getId() : null)
-                .duration(service.getDuration())
                 .price(service.getPrice())
+                .durationInMinutes(service.getDurationInMinutes())
                 .build();
     }
 
-    public ServiceDto mapToDto(UserBusinessServiceProjection.ServiceInfo service) {
+    public ServiceDto mapToDto(ServiceInfo service) {
         return ServiceDto.builder()
                 .id(service.getId())
                 .serviceName(service.getServiceName())
                 .businessId(service.getBusiness() != null ? service.getBusiness().getId() : null)
-                .duration(service.getDuration())
                 .price(service.getPrice())
+                .durationInMinutes(service.getDurationInMinutes())
                 .build();
     }
 
@@ -34,8 +36,12 @@ public class ServiceMapper {
         kg.attractor.bookingsaas.models.Service service = new kg.attractor.bookingsaas.models.Service();
         service.setId(dto.getId());
         service.setServiceName(dto.getServiceName());
-        service.setDuration(dto.getDuration());
         service.setPrice(dto.getPrice());
+
+        Business business = new Business();
+        business.setId(dto.getBusinessId());
+        service.setBusiness(business);
+        service.setDurationInMinutes(dto.getDurationInMinutes());
         return service;
     }
 
@@ -46,11 +52,11 @@ public class ServiceMapper {
         if (dto.getServiceName() != null) {
             existingService.setServiceName(dto.getServiceName());
         }
-        if (dto.getDuration() != null) {
-            existingService.setDuration(dto.getDuration());
-        }
         if (dto.getPrice() != null) {
             existingService.setPrice(dto.getPrice());
+        }
+        if (dto.getDurationInMinutes() != null) {
+            existingService.setDurationInMinutes(dto.getDurationInMinutes());
         }
     }
 }

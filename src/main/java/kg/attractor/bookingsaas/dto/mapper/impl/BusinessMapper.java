@@ -3,6 +3,7 @@ package kg.attractor.bookingsaas.dto.mapper.impl;
 import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.mapper.OutputUserMapper;
 import kg.attractor.bookingsaas.models.Business;
+import kg.attractor.bookingsaas.projection.BusinessInfo;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +42,7 @@ public class BusinessMapper {
         return dto;
     }
 
-    public BusinessDto toDto(UserBusinessServiceProjection.BusinessInfo businessInfo) {
+    public BusinessDto toDto(BusinessInfo businessInfo) {
         if (isNull(businessInfo)) return null;
 
         BusinessDto dto = new BusinessDto();
@@ -62,7 +63,7 @@ public class BusinessMapper {
         return dto;
     }
 
-    private static boolean isNull(UserBusinessServiceProjection.BusinessInfo businessInfo) {
+    private static boolean isNull(BusinessInfo businessInfo) {
         return businessInfo == null;
     }
 

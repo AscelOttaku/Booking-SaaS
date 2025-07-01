@@ -6,10 +6,10 @@ import lombok.Setter;
 
 import java.time.LocalTime;
 
-@Entity
-@Table(name = "schedule")
 @Getter
 @Setter
+@Entity
+@Table(name = "schedule")
 public class Schedule {
 
     @Id
@@ -35,4 +35,7 @@ public class Schedule {
 
     @Column(name = "max_booking_size", nullable = false)
     private Integer maxBookingSize;
+
+    @OneToOne(mappedBy = "schedule", cascade = {CascadeType.PERSIST})
+    private ScheduleSettings scheduleSettings;
 }

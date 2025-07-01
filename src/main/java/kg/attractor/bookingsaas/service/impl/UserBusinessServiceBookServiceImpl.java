@@ -1,10 +1,10 @@
 package kg.attractor.bookingsaas.service.impl;
 
-import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.ServiceDto;
 import kg.attractor.bookingsaas.dto.UserBusinessKey;
 import kg.attractor.bookingsaas.dto.UserBusinessServiceBookDto;
 import kg.attractor.bookingsaas.dto.mapper.OutputUserMapper;
+import kg.attractor.bookingsaas.dto.mapper.impl.BookMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.BusinessMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.ServiceMapper;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
@@ -24,6 +24,7 @@ public class UserBusinessServiceBookServiceImpl implements UserBusinessServiceBo
     private final OutputUserMapper outputUserMapper;
     private final BusinessMapper businessMapper;
     private final ServiceMapper serviceMapper;
+    private final BookMapper bookMapper;
 
     @Override
     public List<UserBusinessServiceBookDto> getUserBusinessServiceBook(Long businessId) {
@@ -47,8 +48,12 @@ public class UserBusinessServiceBookServiceImpl implements UserBusinessServiceBo
 
     private UserBusinessKey mapToUserBusinessKey(UserBusinessServiceProjection projection) {
         return UserBusinessKey.builder()
-                .user(outputUserMapper.mapToDto(projection.getUser()))
+                .userDto(outputUserMapper.mapToDto(projection.getUser()))
                 .businessDto(businessMapper.toDto(projection.getBusiness()))
+                .bookDtos(projection.getUser().getBooks() != null ?
+                        projection.getUser().getBooks().stream()
+                                .map(bookMapper::toDto)
+                                .toList() : List.of())
                 .build();
     }
 
@@ -56,15 +61,11 @@ public class UserBusinessServiceBookServiceImpl implements UserBusinessServiceBo
             Map<UserBusinessKey, List<ServiceDto>> userServicesMap) {
         return userServicesMap.entrySet().stream()
                 .map(entry -> UserBusinessServiceBookDto.builder()
-                        .user(entry.getKey().getUser())
+                        .user(entry.getKey().getUserDto())
                         .businessDto(entry.getKey().getBusinessDto())
                         .services(entry.getValue())
+                        .bookDtos(entry.getKey().getBookDtos())
                         .build())
                 .toList();
-    }
-
-    public BusinessDto findBusinessById(Long id) {
-        return businessMapper.toDto(businessRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Business not found by id " + id)));
     }
 }

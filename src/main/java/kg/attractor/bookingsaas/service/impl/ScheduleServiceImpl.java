@@ -1,8 +1,10 @@
 package kg.attractor.bookingsaas.service.impl;
 
 import kg.attractor.bookingsaas.dto.DailyScheduleDto;
+import kg.attractor.bookingsaas.dto.ScheduleTimeDto;
 import kg.attractor.bookingsaas.dto.WeeklyScheduleDto;
 import kg.attractor.bookingsaas.dto.mapper.impl.ScheduleMapper;
+import kg.attractor.bookingsaas.models.Schedule;
 import kg.attractor.bookingsaas.repository.ScheduleRepository;
 import kg.attractor.bookingsaas.service.ScheduleService;
 import kg.attractor.bookingsaas.service.ScheduleValidator;
@@ -27,13 +29,13 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
 
     @Override
     public DailyScheduleDto createDailySchedule(DailyScheduleDto dailyScheduleDto) {
-        serviceService.checkIfServiceExistsById(dailyScheduleDto.getServiceId());
-        var schedule = scheduleMapper.mapToEntity(dailyScheduleDto);
+        serviceService.checkServiceBelongsToAuthUser(dailyScheduleDto.getServiceId());
 
-        var result = scheduleRepository.existByDayOfWeekIdAndServiceId(dailyScheduleDto.getDayOfWeekId(), dailyScheduleDto.getServiceId());
-        if (result)
+        var result = scheduleRepository.notExistByDayOfWeekIdAndServiceId(dailyScheduleDto.getDayOfWeekId(), dailyScheduleDto.getServiceId());
+        if (!result)
             throw new IllegalArgumentException("schedule already exists ");
 
+        Schedule schedule = scheduleMapper.mapToEntity(dailyScheduleDto);
         var savedSchedule = scheduleRepository.save(schedule);
         return scheduleMapper.mapToDto(savedSchedule);
     }
@@ -44,7 +46,7 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
         Assert.notNull(weeklyScheduleDto, "weeklyScheduleDto must not be null");
         Assert.notNull(weeklyScheduleDto.getServiceId(), "Service ID must not be null");
 
-        serviceService.checkIfServiceExistsById(weeklyScheduleDto.getServiceId());
+        serviceService.checkServiceBelongsToAuthUser(weeklyScheduleDto.getServiceId());
         List<Long> existingDays = scheduleRepository.findDayOfWeekIdsByServiceIdAndDayOfWeekIds(
                 weeklyScheduleDto.getServiceId(),
                 weeklyScheduleDto.getDailySchedules().stream()
@@ -56,13 +58,61 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
             throw new IllegalArgumentException("Schedules for the following days already exist: " + existingDays);
         }
 
-        weeklyScheduleDto.getDailySchedules()
-                .forEach(schedule -> {
+        weeklyScheduleDto.setDailySchedules(weeklyScheduleDto.getDailySchedules()
+                .stream()
+                .map(schedule -> {
                     schedule.setServiceId(weeklyScheduleDto.getServiceId());
                     var entity = scheduleMapper.mapToEntity(schedule);
-                    scheduleRepository.save(entity);
-                });
+                    return scheduleMapper.mapToDto(scheduleRepository.save(entity));
+                })
+                .toList()
+        );
+
         return weeklyScheduleDto;
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    @Override
+    public DailyScheduleDto updateDailySchedule(DailyScheduleDto dailyScheduleDto) {
+        Assert.notNull(dailyScheduleDto, "dailyScheduleDto must not be null");
+        Assert.notNull(dailyScheduleDto.getId(), "ID must not be null");
+
+        serviceService.checkServiceBelongsToAuthUser(dailyScheduleDto.getServiceId());
+
+        var existingSchedule = scheduleRepository.findById(dailyScheduleDto.getId())
+                .orElseThrow(() -> new NoSuchElementException("Schedule with ID " + dailyScheduleDto.getId() + " does not exist"));
+
+        scheduleMapper.updateFrom(dailyScheduleDto, existingSchedule);
+        return scheduleMapper.mapToDto(existingSchedule);
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    @Override
+    public WeeklyScheduleDto updateWeeklySchedule(WeeklyScheduleDto weeklyScheduleDto) {
+        serviceService.checkServiceBelongsToAuthUser(weeklyScheduleDto.getServiceId());
+
+        weeklyScheduleDto.getDailySchedules().forEach(schedule -> {
+            schedule.setServiceId(weeklyScheduleDto.getServiceId());
+            serviceService.checkServiceBelongsToAuthUser(schedule.getServiceId());
+            var existingSchedule = scheduleRepository.findById(schedule.getId())
+                    .orElseThrow(() -> new NoSuchElementException("Schedule with ID " + schedule.getId() + " does not exist"));
+            scheduleMapper.updateFrom(schedule, existingSchedule);
+        });
+
+        return WeeklyScheduleDto.builder()
+                .serviceId(weeklyScheduleDto.getServiceId())
+                .dailySchedules(findAllByServiceId(weeklyScheduleDto.getServiceId()))
+                .build();
+    }
+
+    public List<DailyScheduleDto> findAllByServiceId(Long serviceId) {
+        Assert.notNull(serviceId, "serviceId must not be null");
+
+        serviceService.checkServiceBelongsToAuthUser(serviceId);
+        return scheduleRepository.findAllByServiceId(serviceId)
+                .stream()
+                .map(scheduleMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -76,5 +126,33 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
 
         if (!scheduleRepository.existsById(scheduleId))
             throw new NoSuchElementException("Schedule with ID " + scheduleId + " does not exist");
+    }
+
+    @Override
+    public ScheduleTimeDto findScheduleTimeById(Long id) {
+        Assert.notNull(id, "ID must not be null");
+
+        return scheduleRepository.findScheduleTimeById(id);
+    }
+
+    @Override
+    public void deleteDailyScheduleById(Long id) {
+        Assert.notNull(id, "ID must not be null");
+
+        var schedule = scheduleRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Schedule with ID " + id + " does not exist"));
+        serviceService.checkServiceBelongsToAuthUser(schedule.getService().getId());
+        scheduleRepository.deleteById(id);
+    }
+
+    @Override
+    public int findDurationBetweenBooksByScheduleId(Long scheduleId) {
+        Assert.notNull(scheduleId, "scheduleId must not be null");
+
+        if (!scheduleRepository.existsById(scheduleId)) {
+            throw new NoSuchElementException("Schedule with ID " + scheduleId + " does not exist");
+        }
+
+        return scheduleRepository.findScheduleDurationById(scheduleId);
     }
 }

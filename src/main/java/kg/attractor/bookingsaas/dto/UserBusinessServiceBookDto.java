@@ -1,5 +1,6 @@
 package kg.attractor.bookingsaas.dto;
 
+import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.user.OutputUserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,4 +17,5 @@ public class UserBusinessServiceBookDto {
     private BusinessDto businessDto;
     private OutputUserDto user;
     private List<ServiceDto> services;
+    private List<BookDto> bookDtos;
 }

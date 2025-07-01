@@ -4,15 +4,18 @@ import kg.attractor.bookingsaas.models.Business;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BusinessRepository extends JpaRepository<Business, Long> {
 
     @Query("""
                 select u as user,
+                b as books,
                 bs as business,
                 s as services
                 from Book b
@@ -30,4 +33,9 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
     boolean existsByTitle(String title);
 
     Long countBusinessesByUserId(Long authorizedUserId);
+
+    @Query("select u.name from Business b join b.businessUnderCategories u where b.id = :id")
+    List<String> getBusinessUnderCategoryNames(@Param("id") Long id);
+
+    Optional<Business> findByTitle(String businessTitle);
 }

@@ -2,10 +2,12 @@ package kg.attractor.bookingsaas.annotations;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
+import kg.attractor.bookingsaas.annotations.validators.DurationAtLeastOneHourValidator;
+
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = kg.attractor.bookingsaas.annotations.DurationAtLeastOneHourValidator.class)
+@Constraint(validatedBy = DurationAtLeastOneHourValidator.class)
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DurationAtLeastOneHour {

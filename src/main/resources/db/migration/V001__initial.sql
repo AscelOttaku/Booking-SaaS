@@ -25,6 +25,12 @@ CREATE TABLE users (
     logo VARCHAR(155)
 );
 
+CREATE TABLE business_under_categories (
+    id BIGSERIAL PRIMARY KEY,
+    business_id BIGINT NOT NULL,
+    name VARCHAR(255) NOT NULL
+);
+
 -- Таблица BUSINESS_CATEGORIES
 CREATE TABLE business_categories (
     id BIGSERIAL PRIMARY KEY,
@@ -109,6 +115,10 @@ ALTER TABLE books
 
 ALTER TABLE schedule
     ADD CONSTRAINT fk_schedule_day_of_week FOREIGN KEY (day_of_week_id) REFERENCES day_of_week(id);
+
+ALTER TABLE business_under_categories
+    ADD CONSTRAINT fk_business_under_categories FOREIGN KEY (business_id) REFERENCES bussines(id);
+
 
 ALTER TABLE bussines
     ADD CONSTRAINT fk_bussines_user FOREIGN KEY (user_id) REFERENCES users(id),
