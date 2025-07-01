@@ -2,12 +2,17 @@ package kg.attractor.bookingsaas.service.impl;
 
 import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.ServiceDto;
+import kg.attractor.bookingsaas.dto.mapper.OutputUserMapper;
+import kg.attractor.bookingsaas.dto.mapper.impl.BookMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.ServiceMapper;
+import kg.attractor.bookingsaas.dto.mapper.impl.UserBookServiceMapper;
+import kg.attractor.bookingsaas.dto.booked.BookServiceDto;
 import kg.attractor.bookingsaas.models.Service;
 import kg.attractor.bookingsaas.repository.ServiceRepository;
 import kg.attractor.bookingsaas.service.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,17 +21,23 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+@Slf4j
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
-public class ServiceServiceImpl implements ServiceService, ServiceValidator {
+public class ServiceServiceImpl implements ServiceService, ServiceValidator, ServiceDurationProvider {
     private final ServiceRepository serviceRepository;
     private final BusinessValidator businessService;
     private final ServiceMapper serviceMapper;
     private final PageHolderWrapper pageHolderWrapper;
     private final AuthorizedUserService authorizedUserService;
+    private final UserBookServiceMapper userBookServiceMapper;
+    private final OutputUserMapper outputUserMapper;
+    private final BookMapper bookMapper;
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
@@ -67,6 +78,35 @@ public class ServiceServiceImpl implements ServiceService, ServiceValidator {
     }
 
     @Override
+    public PageHolder<BookServiceDto> findClientsByServiceId(Long serviceId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        var clientsPage = serviceRepository.findClientsByServiceId(serviceId, pageable);
+
+        var grouped = clientsPage.getContent().stream()
+                .collect(Collectors.groupingBy(
+                        userBook -> serviceMapper.mapToDto(userBook.getService()),
+                        Collectors.mapping(userBook -> bookMapper.toDto(userBook.getBook()), Collectors.toList())
+                ));
+
+        List<BookServiceDto> bookServiceDtos = grouped.entrySet().stream()
+                .map(entry -> BookServiceDto.builder()
+                        .serviceDto(entry.getKey())
+                        .bookDtos(entry.getValue())
+                        .build())
+                .toList();
+
+        return PageHolder.<BookServiceDto>builder()
+                .content(bookServiceDtos)
+                .page(clientsPage.getNumber())
+                .size(clientsPage.getSize())
+                .totalPages(clientsPage.getTotalPages())
+                .totalElements(clientsPage.getTotalElements())
+                .hasNextPage(clientsPage.hasNext())
+                .hasPreviousPage(clientsPage.hasPrevious())
+                .build();
+    }
+
+    @Override
     public ServiceDto findServiceById(Long serviceId) {
         return serviceRepository.findById(serviceId)
                 .map(serviceMapper::mapToDto)
@@ -87,5 +127,11 @@ public class ServiceServiceImpl implements ServiceService, ServiceValidator {
         Long businessOwnerId = service.getBusiness().getUser().getId();
         if (!Objects.equals(businessOwnerId, authorizedUserService.getAuthorizedUserId()))
             throw new IllegalArgumentException("You do not have permission to access this service");
+    }
+
+    @Override
+    public int findServiceDurationByScheduleId(Long scheduleId) {
+        return serviceRepository.findServiceDurationByScheduleId((scheduleId))
+                .orElseThrow(() -> new NoSuchElementException("Service not found with schedule id: " + scheduleId));
     }
 }

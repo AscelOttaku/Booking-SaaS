@@ -3,6 +3,7 @@ package kg.attractor.bookingsaas.dto.mapper;
 import kg.attractor.bookingsaas.dto.user.OutputUserDto;
 import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
+import kg.attractor.bookingsaas.projection.UserInfo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -12,5 +13,5 @@ public interface OutputUserMapper {
     User mapToEntity(OutputUserDto dto);
 
     @Mapping(target = "roleName", source = "role.roleName")
-    OutputUserDto mapToDto(UserBusinessServiceProjection.UserInfo userInfo);
+    OutputUserDto mapToDto(UserInfo userInfo);
 }

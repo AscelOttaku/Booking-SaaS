@@ -17,41 +17,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-
 @Tag(name = "Bookings", description = "APIs for managing bookings")
 @RestController
 @RequestMapping("api/booked")
 @RequiredArgsConstructor
 public class BookApi {
     private final BookService bookService;
-
-    @Operation(
-            summary = "Get bookings by business ID",
-            description = "Retrieves a paginated list of all bookings for a specific business",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successfully retrieved bookings",
-                            content = @Content(schema = @Schema(implementation = PageHolder.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Business not found"
-                    )
-            }
-    )
-    @GetMapping("business/{businessId}")
-    @ResponseStatus(HttpStatus.OK)
-    public PageHolder<BookDto> findAllBooksByBusinessId(
-            @Parameter(description = "ID of the business to retrieve bookings for", required = true, example = "1")
-            @PathVariable Long businessId,
-            @Parameter(description = "Page number (0-based)", example = "0")
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @Parameter(description = "Number of items per page", example = "10")
-            @RequestParam(required = false, defaultValue = "10") int size
-    ) {
-        return bookService.findAllBooksByBusinessId(businessId, page, size);
-    }
 
     @Operation(
             summary = "Get bookings by service ID",
@@ -78,7 +49,7 @@ public class BookApi {
             @Parameter(description = "Number of items per page", example = "10")
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
-        return bookService.findAllBooksByBusinessId(serviceId, page, size);
+        return bookService.findAllBooksByServiceId(serviceId, page, size);
     }
 
     @Operation(
@@ -93,7 +64,7 @@ public class BookApi {
             }
     )
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("client/history")
+    @GetMapping("all/clients/history")
     @ResponseStatus(HttpStatus.OK)
     public PageHolder<BookHistoryDto> findAlUsersBookedHistory(
             @Parameter(description = "Page number (0-based)", example = "0")
@@ -104,6 +75,21 @@ public class BookApi {
         return bookService.findAlUsersBookedHistory(page, size);
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("client/history/my")
+    @ResponseStatus(HttpStatus.OK)
+    public BookHistoryDto findUserHistory() {
+        return bookService.findUserHistory();
+    }
+
+    @PreAuthorize("hasAnyAuthority('BUSINESS_OWNER')")
+    @GetMapping("client/{clientId}/history")
+    @ResponseStatus(HttpStatus.OK)
+    public BookHistoryDto findClientHistoryById(@PathVariable Long clientId) {
+        return bookService.findUserHistoryByUserId(clientId);
+    }
+
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     @Operation(
             summary = "Create a new booking",
@@ -125,5 +111,34 @@ public class BookApi {
             @Parameter(description = "Booking data to create", required = true)
             @RequestBody @Validated(OnCreate.class) BookDto bookDto) {
         return bookService.createBook(bookDto);
+    }
+
+    @PreAuthorize("hasAnyAuthority('BUSINESS_OWNER', 'ADMIN')")
+    @Operation(
+            summary = "Get bookings by business title",
+            description = "Retrieves a paginated list of all bookings for a specific business by title",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successfully retrieved bookings",
+                            content = @Content(schema = @Schema(implementation = PageHolder.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Business not found"
+                    )
+            }
+    )
+    @GetMapping("business/title/{businessTitle}")
+    @ResponseStatus(HttpStatus.OK)
+    public PageHolder<BookDto> findAllBooksByBusinessTitle(
+            @Parameter(description = "Title of the business to retrieve bookings for", required = true, example = "My Business")
+            @PathVariable String businessTitle,
+            @Parameter(description = "Page number (0-based)", example = "0")
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @Parameter(description = "Number of items per page", example = "10")
+            @RequestParam(required = false, defaultValue = "10") int size
+    ) {
+        return bookService.findAllBooksByBusinessTitle(businessTitle, page, size);
     }
 }

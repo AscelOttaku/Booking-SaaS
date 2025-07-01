@@ -1,11 +1,14 @@
 package kg.attractor.bookingsaas.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.ServiceDto;
+import kg.attractor.bookingsaas.dto.booked.BookServiceDto;
 import kg.attractor.bookingsaas.markers.OnCreate;
 import kg.attractor.bookingsaas.markers.OnUpdate;
 import kg.attractor.bookingsaas.service.ServiceService;
@@ -87,5 +90,22 @@ public class ServiceController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return service.findAllServicesByBusinessTitle(businessTitle, page, size);
+    }
+
+    @Operation(
+            summary = "Get clients by service ID",
+            description = "Returns a paginated list of clients who have booked the specified service."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of clients returned"),
+            @ApiResponse(responseCode = "404", description = "Service not found")
+    })
+    @GetMapping("/{serviceId}/clients")
+    public PageHolder<BookServiceDto> findClientsByServiceId(
+            @Parameter(description = "ID of the service to fetch clients for", required = true)
+            @PathVariable Long serviceId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return service.findClientsByServiceId(serviceId, page, size);
     }
 }

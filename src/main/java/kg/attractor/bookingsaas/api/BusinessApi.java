@@ -3,18 +3,12 @@ package kg.attractor.bookingsaas.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.PageHolder;
-import kg.attractor.bookingsaas.dto.bussines.BusinessCreateResponse;
-import kg.attractor.bookingsaas.dto.bussines.BusinessInfoRequest;
 import kg.attractor.bookingsaas.dto.bussines.BusinessSummaryResponse;
 import kg.attractor.bookingsaas.service.BusinessService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/business")

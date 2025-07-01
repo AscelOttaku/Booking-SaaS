@@ -19,7 +19,7 @@ import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -31,31 +31,44 @@ public class BookServiceImpl implements BookService {
     private final ScheduleService scheduleService;
     private final AuthorizedUserService authorizedUserService;
     private final HolidaysService holidaysService;
+    private final ServiceDurationProvider serviceDurationProvider;
 
     @Override
-    public List<BookDto> findAllBooksByServiceId(Long serviceId) {
+    public PageHolder<BookDto> findAllBooksByServiceId(Long serviceId, int page, int size) {
         Assert.notNull(serviceId, "serviceId must not be null");
-        return bookRepository.findAllBooksByServicesId(serviceId)
-                .stream()
-                .map(bookMapper::toDto)
-                .toList();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("finishedAt").descending());
+        Page<BookDto> bookPages = bookRepository.findAllBooksByServicesId(serviceId, pageable)
+                .map(bookMapper::toDto);
+        return pageHolderWrapper.wrapPageHolder(bookPages);
     }
 
     @Override
-    public PageHolder<BookDto> findAllBooksByBusinessId(Long businessId, int page, int size) {
-        Assert.notNull(businessId, "businessId must not be null");
+    public PageHolder<BookDto> findAllBooksByBusinessTitle(String businessTitle, int page, int size) {
+        Assert.notNull(businessTitle, "businessTitle must not be null");
         Pageable pageable = PageRequest.of(page, size, Sort.by("finishedAt").descending());
-        Page<BookDto> bookPages = bookRepository.findAllBooksByBusinessId(businessId, pageable)
+        Page<BookDto> bookPages = bookRepository.findAllBooksByBusinessTitle(businessTitle, pageable)
                 .map(bookMapper::toDto);
         return pageHolderWrapper.wrapPageHolder(bookPages);
     }
 
     @Override
     public PageHolder<BookHistoryDto> findAlUsersBookedHistory(int page, int size) {
-        Long authUserId = authorizedUserService.getAuthorizedUserId();
         Pageable pageable = PageRequest.of(page, size, Sort.by("finishedAt").descending());
-        Page<BookHistoryDto> bookPages = bookRepository.findAllUsersBookedHistory(authUserId, pageable);
+        Page<BookHistoryDto> bookPages = bookRepository.findAllUsersBookedHistory(pageable);
         return pageHolderWrapper.wrapPageHolder(bookPages);
+    }
+
+    @Override
+    public BookHistoryDto findUserHistory() {
+        Long authUserId = authorizedUserService.getAuthorizedUserId();
+        return bookRepository.findUserHistoryById(authUserId)
+                .orElseThrow(() -> new NoSuchElementException("No booking history found for the user."));
+    }
+
+    @Override
+    public BookHistoryDto findUserHistoryByUserId(Long userId) {
+        return bookRepository.findUserHistoryById(userId)
+                .orElseThrow(() -> new NoSuchElementException("No booking history found for the user with id: " + userId));
     }
 
     @Override
@@ -69,17 +82,20 @@ public class BookServiceImpl implements BookService {
             throw new IllegalArgumentException("The booking date conflicts with a holiday.");
         }
 
+        // Fetch service duration
+        int serviceDurationInMinutes = serviceDurationProvider.findServiceDurationByScheduleId(bookDto.getScheduleId());
+
         // Check for break conflicts
         LocalTime startedAtTime = bookDto.getStartedAt().toLocalTime();
-        LocalTime finishedAtTime = bookDto.getFinishedAt().toLocalTime();
+        LocalTime finishedAtTime = bookDto.getStartedAt().toLocalTime().plusMinutes(serviceDurationInMinutes);
         boolean hasBreakConflicts = bookRepository.checkForBreakConflicts(bookDto.getScheduleId(), startedAtTime, finishedAtTime);
         if (hasBreakConflicts)
             throw new IllegalArgumentException("The booking time conflicts with a break period.");
 
         // Adding duration of breaks to the booking time
-        int durationInMinutes = scheduleService.findDurationBetweenBooksByScheduleId(bookDto.getScheduleId());
-        LocalDateTime startedAt = bookDto.getStartedAt().minusMinutes(durationInMinutes);
-        LocalDateTime finishedAt = bookDto.getFinishedAt().plusMinutes(durationInMinutes);
+        int durationInMinutesBetweenBooks = scheduleService.findDurationBetweenBooksByScheduleId(bookDto.getScheduleId());
+        LocalDateTime startedAt = bookDto.getStartedAt().minusMinutes(durationInMinutesBetweenBooks);
+        LocalDateTime finishedAt = bookDto.getStartedAt().plusMinutes(serviceDurationInMinutes + (long) durationInMinutesBetweenBooks);
 
         // Check if the book time is available
         long bookedCount = bookRepository.findBooksWithConflictTimesByScheduleId(bookDto.getScheduleId(), startedAt, finishedAt);

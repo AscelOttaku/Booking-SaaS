@@ -1,5 +1,6 @@
 package kg.attractor.bookingsaas.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,6 +50,10 @@ public class User implements UserDetails {
 
     @Column(name = "logo")
     private String logo;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Book> books;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

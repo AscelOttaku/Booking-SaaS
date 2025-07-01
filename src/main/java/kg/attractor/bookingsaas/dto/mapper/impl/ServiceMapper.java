@@ -2,6 +2,7 @@ package kg.attractor.bookingsaas.dto.mapper.impl;
 
 import kg.attractor.bookingsaas.dto.ServiceDto;
 import kg.attractor.bookingsaas.models.Business;
+import kg.attractor.bookingsaas.projection.ServiceInfo;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import org.springframework.stereotype.Service;
 
@@ -14,15 +15,17 @@ public class ServiceMapper {
                 .serviceName(service.getServiceName())
                 .businessId(service.getBusiness() != null ? service.getBusiness().getId() : null)
                 .price(service.getPrice())
+                .durationInMinutes(service.getDurationInMinutes())
                 .build();
     }
 
-    public ServiceDto mapToDto(UserBusinessServiceProjection.ServiceInfo service) {
+    public ServiceDto mapToDto(ServiceInfo service) {
         return ServiceDto.builder()
                 .id(service.getId())
                 .serviceName(service.getServiceName())
                 .businessId(service.getBusiness() != null ? service.getBusiness().getId() : null)
                 .price(service.getPrice())
+                .durationInMinutes(service.getDurationInMinutes())
                 .build();
     }
 
@@ -38,6 +41,7 @@ public class ServiceMapper {
         Business business = new Business();
         business.setId(dto.getBusinessId());
         service.setBusiness(business);
+        service.setDurationInMinutes(dto.getDurationInMinutes());
         return service;
     }
 
@@ -50,6 +54,9 @@ public class ServiceMapper {
         }
         if (dto.getPrice() != null) {
             existingService.setPrice(dto.getPrice());
+        }
+        if (dto.getDurationInMinutes() != null) {
+            existingService.setDurationInMinutes(dto.getDurationInMinutes());
         }
     }
 }
