@@ -15,6 +15,7 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
 
     @Query("""
                 select u as user,
+                b as books,
                 bs as business,
                 s as services
                 from Book b

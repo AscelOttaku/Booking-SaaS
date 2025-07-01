@@ -1,14 +1,8 @@
 package kg.attractor.bookingsaas.service;
 
 import kg.attractor.bookingsaas.dto.PageHolder;
-import kg.attractor.bookingsaas.dto.bussines.BusinessCreateResponse;
-import kg.attractor.bookingsaas.dto.bussines.BusinessInfoRequest;
-import kg.attractor.bookingsaas.dto.bussines.BusinessInfoResponse;
 import kg.attractor.bookingsaas.dto.bussines.BusinessSummaryResponse;
 import kg.attractor.bookingsaas.dto.BusinessDto;
-
-
-import java.util.List;
 
 public interface BusinessService {
 //    List<BusinessSummaryResponse> searchBusiness(String name);

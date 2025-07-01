@@ -4,6 +4,7 @@ import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.mapper.OutputUserMapper;
 import kg.attractor.bookingsaas.models.Book;
 import kg.attractor.bookingsaas.models.Schedule;
+import kg.attractor.bookingsaas.projection.BookInfo;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class BookMapper {
-
     private final OutputUserMapper outputUserMapper;
 
     public BookDto toDto(Book book) {
@@ -21,20 +21,18 @@ public class BookMapper {
         BookDto dto = new BookDto();
         dto.setId(book.getId());
         dto.setStartedAt(book.getStartedAt());
-        dto.setFinishedAt(book.getFinishedAt());
         dto.setScheduleId(book.getSchedule().getId());
         dto.setUserDto(outputUserMapper.mapToDto(book.getUser()));
         return dto;
     }
 
-    public BookDto toDto(UserBusinessServiceProjection.BookInfo book) {
+    public BookDto toDto(BookInfo book) {
         if (book == null) {
             return null;
         }
         BookDto dto = new BookDto();
         dto.setId(book.getId());
         dto.setStartedAt(book.getStartedAt());
-        dto.setFinishedAt(book.getFinishedAt());
         dto.setScheduleId(book.getSchedule().getId());
         dto.setUserDto(outputUserMapper.mapToDto(book.getUser()));
         return dto;
@@ -46,7 +44,6 @@ public class BookMapper {
         }
         Book book = new Book();
         book.setStartedAt(dto.getStartedAt());
-        book.setFinishedAt(dto.getFinishedAt());
 
         Schedule schedule = new Schedule();
         schedule.setId(dto.getScheduleId());

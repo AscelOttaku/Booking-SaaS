@@ -1,17 +1,21 @@
 package kg.attractor.bookingsaas.service;
 
-import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.PageHolder;
+import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
 
 import java.util.List;
 
 public interface BookService {
-    List<BookDto> findAllBooksByServiceId(Long serviceId);
+    PageHolder<BookDto> findAllBooksByServiceId(Long serviceId, int page, int size);
 
-    PageHolder<BookDto> findAllBooksByBusinessId(Long businesId, int page, int size);
+    PageHolder<BookDto> findAllBooksByBusinessTitle(String businessTitle, int page, int size);
 
     PageHolder<BookHistoryDto> findAlUsersBookedHistory(int page, int size);
+
+    BookHistoryDto findUserHistory();
+
+    BookHistoryDto findUserHistoryByUserId(Long userId);
 
     BookDto createBook(BookDto bookDto);
 }

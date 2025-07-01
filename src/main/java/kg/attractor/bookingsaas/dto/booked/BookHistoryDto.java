@@ -9,8 +9,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class BookHistoryDto {
-    public BookHistoryDto(Long id, String serviceName, String businessName, LocalDateTime startedAt, LocalDateTime finishedAt) {
+    public BookHistoryDto(Long id, OutputUserDto outputUserDto, String serviceName, String businessName, LocalDateTime startedAt, LocalDateTime finishedAt) {
         this.id = id;
+        this.outputUserDto = outputUserDto;
         this.serviceName = serviceName;
         this.businessName = businessName;
         this.startedAt = startedAt;
