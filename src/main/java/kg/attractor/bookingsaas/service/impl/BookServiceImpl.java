@@ -2,10 +2,13 @@ package kg.attractor.bookingsaas.service.impl;
 
 import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.booked.BookDto;
-import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
+import kg.attractor.bookingsaas.dto.booked.BookInfoDto;
 import kg.attractor.bookingsaas.dto.mapper.impl.BookMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
 import kg.attractor.bookingsaas.enums.BookStatus;
+import kg.attractor.bookingsaas.event.BookCanceledEvent;
+import kg.attractor.bookingsaas.event.BookCreateEvent;
+import kg.attractor.bookingsaas.event.publisher.BookEventPublisher;
 import kg.attractor.bookingsaas.models.Book;
 import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.repository.BookRepository;
@@ -39,6 +42,7 @@ public class BookServiceImpl implements BookService {
     private final AuthorizedUserService authorizedUserService;
     private final HolidaysService holidaysService;
     private final ServiceDurationProvider serviceDurationProvider;
+    private final BookEventPublisher bookEventPublisher;
 
     @Override
     public PageHolder<BookDto> findAllBooksByServiceId(Long serviceId, int page, int size) {
@@ -59,21 +63,21 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public PageHolder<BookHistoryDto> findAlUsersBookedHistory(int page, int size) {
+    public PageHolder<BookInfoDto> findAlUsersBookedHistory(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("finishedAt").descending());
-        Page<BookHistoryDto> bookPages = bookRepository.findAllUsersBookedHistory(pageable);
+        Page<BookInfoDto> bookPages = bookRepository.findAllUsersBookedHistory(pageable);
         return pageHolderWrapper.wrapPageHolder(bookPages);
     }
 
     @Override
-    public BookHistoryDto findUserHistory() {
+    public BookInfoDto findUserHistory() {
         Long authUserId = authorizedUserService.getAuthorizedUserId();
         return bookRepository.findUserHistoryById(authUserId)
                 .orElseThrow(() -> new NoSuchElementException("No booking history found for the user."));
     }
 
     @Override
-    public BookHistoryDto findUserHistoryByUserId(Long userId) {
+    public BookInfoDto findUserHistoryByUserId(Long userId) {
         return bookRepository.findUserHistoryById(userId)
                 .orElseThrow(() -> new NoSuchElementException("No booking history found for the user with id: " + userId));
     }
@@ -90,6 +94,8 @@ public class BookServiceImpl implements BookService {
         book.setUser(authUser);
         book.setFinishedAt(calculateFinishedAt(bookDto));
         Book save = bookRepository.save(book);
+
+        bookEventPublisher.publishBookCreateEvent(new BookCreateEvent(save.getId(), authUser.getEmail()));
         return bookMapper.toDto(save);
     }
 
@@ -162,7 +168,8 @@ public class BookServiceImpl implements BookService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new NoSuchElementException("Book with ID " + bookId + " does not exist"));
 
-        if (!Objects.equals(book.getUser().getId(), authorizedUserService.getAuthorizedUserId()))
+        User authUser = (User) authorizedUserService.getAuthUser();
+        if (!Objects.equals(book.getUser().getId(), authUser.getId()))
             throw new IllegalArgumentException("You do not have permission to cancel this book");
 
         int durationInMinutes = Duration.between(book.getStartedAt(), LocalDateTime.now()).toMinutesPart();
@@ -170,6 +177,14 @@ public class BookServiceImpl implements BookService {
             throw new IllegalArgumentException("You cannot cancel a booking less than 30 minutes before it starts.");
         }
         book.setStatus(BookStatus.CANCELED);
+
+        bookEventPublisher.publishBookCancelEvent(new BookCanceledEvent(bookId, authUser.getEmail(), LocalDateTime.now()));
         return bookMapper.toDto(bookRepository.save(book));
+    }
+
+    @Override
+    public BookInfoDto findBookById(Long bookId) {
+        return bookRepository.findBookInfoById(bookId)
+                .orElseThrow(() -> new NoSuchElementException("Book with ID " + bookId + " does not exist"));
     }
 }

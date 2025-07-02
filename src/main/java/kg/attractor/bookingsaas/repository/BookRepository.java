@@ -1,9 +1,8 @@
 package kg.attractor.bookingsaas.repository;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
+import kg.attractor.bookingsaas.dto.booked.BookInfoDto;
 import kg.attractor.bookingsaas.models.Book;
+import kg.attractor.bookingsaas.projection.BookInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -30,7 +28,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "where sr.business.title = :businessTitle")
     Page<Book> findAllBooksByBusinessTitle(String businessTitle, Pageable pageable);
 
-    @Query("select new kg.attractor.bookingsaas.dto.booked.BookHistoryDto(" +
+    @Query("select new kg.attractor.bookingsaas.dto.booked.BookInfoDto(" +
             "b.id, " +
             "new kg.attractor.bookingsaas.dto.user.OutputUserDto(" +
             "u.firstName, u.middleName, u.lastName, u.phone, u.email, u.logo, u.role.roleName" +
@@ -43,7 +41,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "join sc.service s " +
             "join s.business bs " +
             "where b.finishedAt is not null and b.finishedAt < CURRENT_TIMESTAMP")
-    Page<BookHistoryDto> findAllUsersBookedHistory(Pageable pageable);
+    Page<BookInfoDto> findAllUsersBookedHistory(Pageable pageable);
 
     @Query("select count(b) from Book b " +
             "join b.schedule s " +
@@ -59,7 +57,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "and bp.end > :startedAt")
     boolean checkForBreakConflicts(Long scheduleId, LocalTime startedAt, LocalTime finishedAt);
 
-    @Query("select new kg.attractor.bookingsaas.dto.booked.BookHistoryDto(" +
+    @Query("select new kg.attractor.bookingsaas.dto.booked.BookInfoDto(" +
             "b.id, " +
             "new kg.attractor.bookingsaas.dto.user.OutputUserDto(" +
             "u.firstName, u.middleName, u.lastName, u.phone, u.email, u.logo, u.role.roleName" +
@@ -72,5 +70,19 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "join sc.service s " +
             "join s.business bs " +
             "where u.id = :authUserId and b.finishedAt is not null and b.finishedAt < CURRENT_TIMESTAMP")
-    Optional<BookHistoryDto> findUserHistoryById(Long authUserId);
+    Optional<BookInfoDto> findUserHistoryById(Long authUserId);
+
+    @Query("select new kg.attractor.bookingsaas.dto.booked.BookInfoDto(" +
+            "b.id, " +
+            "new kg.attractor.bookingsaas.dto.user.OutputUserDto(" +
+            "u.firstName, u.middleName, u.lastName, u.phone, u.email, u.logo, u.role.roleName" +
+            ")," +
+            "s.serviceName, bs.title, b.startedAt, b.finishedAt" +
+            ") from Book b " +
+            "join b.schedule sc " +
+            "join b.user u " +
+            "join sc.service s " +
+            "join s.business bs " +
+            "where b.id = :bookId")
+    Optional<BookInfoDto> findBookInfoById(Long bookId);
 }

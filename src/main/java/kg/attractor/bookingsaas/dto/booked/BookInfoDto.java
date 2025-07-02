@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class BookHistoryDto {
-    public BookHistoryDto(Long id, OutputUserDto outputUserDto, String serviceName, String businessName, LocalDateTime startedAt, LocalDateTime finishedAt) {
+public class BookInfoDto {
+    public BookInfoDto(Long id, OutputUserDto outputUserDto, String serviceName, String businessName, LocalDateTime startedAt, LocalDateTime finishedAt) {
         this.id = id;
         this.outputUserDto = outputUserDto;
         this.serviceName = serviceName;

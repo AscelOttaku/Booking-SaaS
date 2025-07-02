@@ -8,12 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.booked.BookDto;
-import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
+import kg.attractor.bookingsaas.dto.booked.BookInfoDto;
 import kg.attractor.bookingsaas.markers.OnCreate;
 import kg.attractor.bookingsaas.markers.OnUpdate;
 import kg.attractor.bookingsaas.service.BookService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Fetch;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -68,7 +67,7 @@ public class BookApi {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("all/clients/history")
     @ResponseStatus(HttpStatus.OK)
-    public PageHolder<BookHistoryDto> findAlUsersBookedHistory(
+    public PageHolder<BookInfoDto> findAlUsersBookedHistory(
             @Parameter(description = "Page number (0-based)", example = "0")
             @RequestParam(required = false, defaultValue = "0") int page,
             @Parameter(description = "Number of items per page", example = "10")
@@ -80,14 +79,14 @@ public class BookApi {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("client/history/my")
     @ResponseStatus(HttpStatus.OK)
-    public BookHistoryDto findUserHistory() {
+    public BookInfoDto findUserHistory() {
         return bookService.findUserHistory();
     }
 
     @PreAuthorize("hasAnyAuthority('BUSINESS_OWNER')")
     @GetMapping("client/{clientId}/history")
     @ResponseStatus(HttpStatus.OK)
-    public BookHistoryDto findClientHistoryById(@PathVariable Long clientId) {
+    public BookInfoDto findClientHistoryById(@PathVariable Long clientId) {
         return bookService.findUserHistoryByUserId(clientId);
     }
 
@@ -160,5 +159,14 @@ public class BookApi {
             @Parameter(description = "ID of the booking to cancel", required = true)
             @RequestParam Long bookId) {
         return bookService.cancelBook(bookId);
+    }
+    
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("info")
+    @ResponseStatus(HttpStatus.OK)
+    public BookInfoDto findBookById(
+            @Parameter(description = "ID of the booking to retrieve", required = true)
+            @RequestParam Long bookId) {
+        return bookService.findBookById(bookId);
     }
 }

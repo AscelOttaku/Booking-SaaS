@@ -21,6 +21,20 @@ spring:
     enabled: true
     validate-on-migrate: false
 
+# Email sender configuration
+  mail:
+    host: smtp.gmail.com
+    username: zhanybek20065732@gmail.com
+    password: xmqh zdnf kjld qdkh
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth:
+            true
+          starttls:
+            enable: true
+
   jwt:
     secret_key: some-long-secret-string-at-least-64-chars-1234567890abcdef1234567890abcdef
 
