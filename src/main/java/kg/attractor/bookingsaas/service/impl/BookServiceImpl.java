@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -164,6 +165,10 @@ public class BookServiceImpl implements BookService {
         if (!Objects.equals(book.getUser().getId(), authorizedUserService.getAuthorizedUserId()))
             throw new IllegalArgumentException("You do not have permission to cancel this book");
 
+        int durationInMinutes = Duration.between(book.getStartedAt(), LocalDateTime.now()).toMinutesPart();
+        if (durationInMinutes < 30) {
+            throw new IllegalArgumentException("You cannot cancel a booking less than 30 minutes before it starts.");
+        }
         book.setStatus(BookStatus.CANCELED);
         return bookMapper.toDto(bookRepository.save(book));
     }
