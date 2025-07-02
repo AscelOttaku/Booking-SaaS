@@ -3,6 +3,9 @@ package kg.attractor.bookingsaas.service;
 import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,4 +21,9 @@ public interface BookService {
     BookHistoryDto findUserHistoryByUserId(Long userId);
 
     BookDto createBook(BookDto bookDto);
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRED)
+    BookDto updateBook(BookDto bookDto);
+
+    BookDto cancelBook(Long bookId);
 }

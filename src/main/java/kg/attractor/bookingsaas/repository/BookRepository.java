@@ -1,5 +1,7 @@
 package kg.attractor.bookingsaas.repository;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
 import kg.attractor.bookingsaas.models.Book;
 import org.springframework.data.domain.Page;

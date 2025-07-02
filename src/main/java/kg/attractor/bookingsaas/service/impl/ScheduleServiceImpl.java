@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -126,6 +127,18 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
 
         if (!scheduleRepository.existsById(scheduleId))
             throw new NoSuchElementException("Schedule with ID " + scheduleId + " does not exist");
+    }
+
+    @Override
+    public boolean checkForWorkTimeConflicts(Long scheduleId, LocalTime startedAtTime, LocalTime finishedAtTime) {
+        Assert.isTrue(scheduleId != null && scheduleId > 0, "Schedule ID must not be null or negative");
+        Assert.isTrue(startedAtTime != null && finishedAtTime != null, "Start and finish times must not be null");
+        Assert.isTrue(startedAtTime.isBefore(finishedAtTime), "Start time must be before finish time");
+
+        var existingSchedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new NoSuchElementException("Schedule with ID " + scheduleId + " does not exist"));
+
+        return existingSchedule.getStartTime().isAfter(finishedAtTime) || existingSchedule.getEndTime().isBefore(startedAtTime);
     }
 
     @Override

@@ -1,11 +1,10 @@
 package kg.attractor.bookingsaas.models;
 
 import jakarta.persistence.*;
+import kg.attractor.bookingsaas.enums.BookStatus;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
@@ -31,4 +30,8 @@ public class Book {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_by")
     private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private BookStatus status;
 }

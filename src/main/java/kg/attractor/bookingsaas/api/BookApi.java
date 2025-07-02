@@ -10,8 +10,10 @@ import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
 import kg.attractor.bookingsaas.markers.OnCreate;
+import kg.attractor.bookingsaas.markers.OnUpdate;
 import kg.attractor.bookingsaas.service.BookService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.Fetch;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -140,5 +142,23 @@ public class BookApi {
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
         return bookService.findAllBooksByBusinessTitle(businessTitle, page, size);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    public BookDto updateBook(
+            @Parameter(description = "Booking data to update", required = true)
+            @RequestBody @Validated(OnUpdate.class) BookDto bookDto) {
+        return bookService.updateBook(bookDto);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping
+    @ResponseStatus(HttpStatus.OK)
+    public BookDto cancleBook(
+            @Parameter(description = "ID of the booking to cancel", required = true)
+            @RequestParam Long bookId) {
+        return bookService.cancelBook(bookId);
     }
 }

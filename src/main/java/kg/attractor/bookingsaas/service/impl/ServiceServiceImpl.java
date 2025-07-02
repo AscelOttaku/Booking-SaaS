@@ -2,12 +2,10 @@ package kg.attractor.bookingsaas.service.impl;
 
 import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.ServiceDto;
-import kg.attractor.bookingsaas.dto.mapper.OutputUserMapper;
+import kg.attractor.bookingsaas.dto.booked.BookServiceDto;
 import kg.attractor.bookingsaas.dto.mapper.impl.BookMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.ServiceMapper;
-import kg.attractor.bookingsaas.dto.mapper.impl.UserBookServiceMapper;
-import kg.attractor.bookingsaas.dto.booked.BookServiceDto;
 import kg.attractor.bookingsaas.models.Service;
 import kg.attractor.bookingsaas.repository.ServiceRepository;
 import kg.attractor.bookingsaas.service.*;
@@ -35,8 +33,6 @@ public class ServiceServiceImpl implements ServiceService, ServiceValidator, Ser
     private final ServiceMapper serviceMapper;
     private final PageHolderWrapper pageHolderWrapper;
     private final AuthorizedUserService authorizedUserService;
-    private final UserBookServiceMapper userBookServiceMapper;
-    private final OutputUserMapper outputUserMapper;
     private final BookMapper bookMapper;
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)

@@ -28,11 +28,16 @@ public class BookDto {
     @Positive(groups = {OnCreate.class}, message = "serviceId must be positive")
     private Long scheduleId;
 
-    @Schema(description = "Booking start time", example = "2024-07-01T10:00:00")
+    @Schema(description = "Booking start time", example = "2024-07-01 10:00:00")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @NotNull(groups = {OnCreate.class}, message = "startedAt must not be null")
     @Future(groups = {OnCreate.class}, message = "startedAt must be in the future")
     private LocalDateTime startedAt;
+
+    @Schema(description = "Booking end time", accessMode = Schema.AccessMode.READ_ONLY)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Null(groups = {OnCreate.class, OnUpdate.class}, message = "finishedAt must be null on create or update")
+    private LocalDateTime finishedAt;
 
     @Schema(description = "Booking status", accessMode = Schema.AccessMode.READ_ONLY)
     private OutputUserDto userDto;

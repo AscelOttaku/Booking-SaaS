@@ -1,11 +1,15 @@
 package kg.attractor.bookingsaas.service;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import kg.attractor.bookingsaas.dto.DailyScheduleDto;
 import kg.attractor.bookingsaas.dto.ScheduleTimeDto;
 import kg.attractor.bookingsaas.dto.WeeklyScheduleDto;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalTime;
 
 public interface ScheduleService {
     DailyScheduleDto createDailySchedule(DailyScheduleDto dailyScheduleDto);

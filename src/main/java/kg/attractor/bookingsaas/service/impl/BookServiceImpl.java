@@ -5,6 +5,7 @@ import kg.attractor.bookingsaas.dto.booked.BookDto;
 import kg.attractor.bookingsaas.dto.booked.BookHistoryDto;
 import kg.attractor.bookingsaas.dto.mapper.impl.BookMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
+import kg.attractor.bookingsaas.enums.BookStatus;
 import kg.attractor.bookingsaas.models.Book;
 import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.repository.BookRepository;
@@ -15,11 +16,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -76,38 +82,89 @@ public class BookServiceImpl implements BookService {
         Assert.notNull(bookDto, "bookDto must not be null");
         scheduleValidator.checkScheduleExistsById(bookDto.getScheduleId());
 
-        // Check for Holiday conflicts
-        var holidays = holidaysService.getHolidaysByYearFromDb(bookDto.getStartedAt().getYear());
-        if (holidays.stream().anyMatch(holiday -> holiday.getDate().equals(bookDto.getStartedAt().toLocalDate()))) {
-            throw new IllegalArgumentException("The booking date conflicts with a holiday.");
-        }
-
-        // Fetch service duration
-        int serviceDurationInMinutes = serviceDurationProvider.findServiceDurationByScheduleId(bookDto.getScheduleId());
-
-        // Check for break conflicts
-        LocalTime startedAtTime = bookDto.getStartedAt().toLocalTime();
-        LocalTime finishedAtTime = bookDto.getStartedAt().toLocalTime().plusMinutes(serviceDurationInMinutes);
-        boolean hasBreakConflicts = bookRepository.checkForBreakConflicts(bookDto.getScheduleId(), startedAtTime, finishedAtTime);
-        if (hasBreakConflicts)
-            throw new IllegalArgumentException("The booking time conflicts with a break period.");
-
-        // Adding duration of breaks to the booking time
-        int durationInMinutesBetweenBooks = scheduleService.findDurationBetweenBooksByScheduleId(bookDto.getScheduleId());
-        LocalDateTime startedAt = bookDto.getStartedAt().minusMinutes(durationInMinutesBetweenBooks);
-        LocalDateTime finishedAt = bookDto.getStartedAt().plusMinutes(serviceDurationInMinutes + (long) durationInMinutesBetweenBooks);
-
-        // Check if the book time is available
-        long bookedCount = bookRepository.findBooksWithConflictTimesByScheduleId(bookDto.getScheduleId(), startedAt, finishedAt);
-        long maxBookingSizeByScheduleId = scheduleService.findMaxBookingSizeByScheduleId(bookDto.getScheduleId());
-        if (bookedCount >= maxBookingSizeByScheduleId) {
-            throw new IllegalArgumentException("The schedule is fully booked for the selected time.");
-        }
+        validateForBreakHolidayAndWorkTimeConflicts(bookDto);
 
         Book book = bookMapper.toEntity(bookDto);
         User authUser = (User) authorizedUserService.getAuthUser();
         book.setUser(authUser);
+        book.setFinishedAt(calculateFinishedAt(bookDto));
         Book save = bookRepository.save(book);
         return bookMapper.toDto(save);
+    }
+
+    private LocalDateTime calculateFinishedAt(BookDto bookDto) {
+        int serviceDuration = serviceDurationProvider.findServiceDurationByScheduleId(bookDto.getScheduleId());
+        return bookDto.getStartedAt().plusMinutes(serviceDuration);
+    }
+
+    private void validateForBreakHolidayAndWorkTimeConflicts(BookDto bookDto) {
+        LocalDateTime startDateTime = bookDto.getStartedAt();
+        long scheduleId = bookDto.getScheduleId();
+        int serviceDuration = serviceDurationProvider.findServiceDurationByScheduleId(scheduleId);
+        int betweenBooksDuration = scheduleService.findDurationBetweenBooksByScheduleId(scheduleId);
+
+        LocalDate bookingDate = startDateTime.toLocalDate();
+        LocalTime startTime = startDateTime.toLocalTime();
+        LocalTime endTime = startTime.plusMinutes(serviceDuration);
+
+        // 1. Holiday check
+        boolean isHoliday = holidaysService.getHolidaysByYearFromDb(bookingDate.getYear())
+                .stream()
+                .anyMatch(holiday -> holiday.getDate().equals(bookingDate));
+        if (isHoliday) {
+            throw new IllegalArgumentException("The booking date conflicts with a holiday.");
+        }
+
+        // 2. Work time conflict
+        LocalTime startAt = startTime.minusMinutes(serviceDuration);
+        LocalTime endAt = endTime.plusMinutes(serviceDuration);
+        if (scheduleValidator.checkForWorkTimeConflicts(scheduleId, startAt, endAt)) {
+            throw new IllegalArgumentException("The booking time conflicts with the work schedule.");
+        }
+
+        // 3. Break conflict
+        if (bookRepository.checkForBreakConflicts(scheduleId, startTime, endTime)) {
+            throw new IllegalArgumentException("The booking time conflicts with a break period.");
+        }
+
+        // 4. Overbooking check
+        LocalDateTime conflictStart = startDateTime.minusMinutes(betweenBooksDuration);
+        LocalDateTime conflictEnd = startDateTime.plusMinutes(serviceDuration + (long) betweenBooksDuration);
+        long existingBookings = bookRepository.findBooksWithConflictTimesByScheduleId(scheduleId, conflictStart, conflictEnd);
+        long maxAllowed = scheduleService.findMaxBookingSizeByScheduleId(scheduleId);
+        if (existingBookings >= maxAllowed) {
+            throw new IllegalArgumentException("The schedule is fully booked for the selected time.");
+        }
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRED)
+    @Override
+    public BookDto updateBook(BookDto bookDto) {
+        var existingBook = bookRepository.findById(bookDto.getId())
+                .orElseThrow(() -> new NoSuchElementException("Book with ID " + bookDto.getId() + " does not exist"));
+
+        if (!Objects.equals(existingBook.getUser().getId(), authorizedUserService.getAuthorizedUserId()))
+            throw new IllegalArgumentException("You do not have permission to update this book");
+
+        bookDto.setScheduleId(existingBook.getSchedule().getId());
+
+        validateForBreakHolidayAndWorkTimeConflicts(bookDto);
+
+        existingBook.setStartedAt(bookDto.getStartedAt());
+        existingBook.setFinishedAt(calculateFinishedAt(bookDto));
+        return bookMapper.toDto(bookRepository.save(existingBook));
+    }
+
+    @Override
+    public BookDto cancelBook(Long bookId) {
+        Assert.isTrue(bookId != null && bookId > 0, "bookId must not be null and positive");
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new NoSuchElementException("Book with ID " + bookId + " does not exist"));
+
+        if (!Objects.equals(book.getUser().getId(), authorizedUserService.getAuthorizedUserId()))
+            throw new IllegalArgumentException("You do not have permission to cancel this book");
+
+        book.setStatus(BookStatus.CANCELED);
+        return bookMapper.toDto(bookRepository.save(book));
     }
 }
