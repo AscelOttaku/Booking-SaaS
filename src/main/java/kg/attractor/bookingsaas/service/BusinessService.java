@@ -1,7 +1,6 @@
 package kg.attractor.bookingsaas.service;
 
 import kg.attractor.bookingsaas.dto.PageHolder;
-import kg.attractor.bookingsaas.dto.bussines.BusinessSummaryResponse;
 import kg.attractor.bookingsaas.dto.BusinessDto;
 
 public interface BusinessService {
@@ -15,7 +14,7 @@ public interface BusinessService {
 
     boolean isBusinessTitleIsUnique(String title);
 
-    PageHolder<BusinessSummaryResponse> getBusinessList(int page, int size);
+    PageHolder<BusinessDto> getBusinessList(int page, int size);
 
     Long countBusinessesByUserId(Long authorizedUserId);
 }

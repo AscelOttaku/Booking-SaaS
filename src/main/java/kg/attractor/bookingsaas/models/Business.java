@@ -7,6 +7,25 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@NamedEntityGraph(
+        name = "business-with-all",
+        attributeNodes = {
+                @NamedAttributeNode("user"),
+                @NamedAttributeNode("city"),
+                @NamedAttributeNode("businessCategory"),
+                @NamedAttributeNode("businessUnderCategories"),
+                @NamedAttributeNode(value = "services", subgraph = "services-subgraph")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "services-subgraph",
+                        attributeNodes = {
+                                @NamedAttributeNode("business"),
+                        }
+                )
+        }
+)
+
 @Getter
 @Setter
 @Entity

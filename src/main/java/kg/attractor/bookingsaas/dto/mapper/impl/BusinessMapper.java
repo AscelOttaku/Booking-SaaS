@@ -4,7 +4,6 @@ import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.mapper.OutputUserMapper;
 import kg.attractor.bookingsaas.models.Business;
 import kg.attractor.bookingsaas.projection.BusinessInfo;
-import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;

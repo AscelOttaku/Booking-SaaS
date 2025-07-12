@@ -1,5 +1,6 @@
 package kg.attractor.bookingsaas.repository;
 
+import kg.attractor.bookingsaas.dto.user.UserBookQuantityDto;
 import kg.attractor.bookingsaas.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,4 +48,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "join Service sv on s.service.id = sv.id " +
             "where sv.id = :serviceId")
     Page<User> findUsersByServiceId(Long serviceId, Pageable pageable);
+
+    @Query(value = "select new kg.attractor.bookingsaas.dto.user.UserBookQuantityDto(u.id, u.firstName, u.lastName, u.email, count(b.id)) " +
+            "from User u " +
+            "join Book b on u.id = b.user.id " +
+            "group by u.id " +
+            "having count(b.id) >= 2",
+    countQuery = "select count(u.id) " +
+            "from User u " +
+            "join Book b on u.id = b.user.id " +
+            "group by u.id " +
+            "having count(b.id) >= 2")
+    Page<UserBookQuantityDto> findUsersWithBooksQuantityAtLeastTwo(Pageable pageable);
 }

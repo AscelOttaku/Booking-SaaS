@@ -1,7 +1,12 @@
 package kg.attractor.bookingsaas.repository;
 
 import kg.attractor.bookingsaas.models.Business;
+import kg.attractor.bookingsaas.models.BusinessReview;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -38,4 +43,8 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
     List<String> getBusinessUnderCategoryNames(@Param("id") Long id);
 
     Optional<Business> findByTitle(String businessTitle);
+
+    @EntityGraph(value = "business-with-all", type = EntityGraph.EntityGraphType.LOAD)
+    @Query("SELECT b FROM Business b")
+    Page<Business> findBusiness(Pageable pageable);
 }
