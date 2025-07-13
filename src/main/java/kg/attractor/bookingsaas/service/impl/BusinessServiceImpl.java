@@ -5,7 +5,6 @@ import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.mapper.impl.BusinessMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
 import kg.attractor.bookingsaas.models.Business;
-import kg.attractor.bookingsaas.models.BusinessReview;
 import kg.attractor.bookingsaas.repository.BusinessRepository;
 import kg.attractor.bookingsaas.service.AuthorizedUserService;
 import kg.attractor.bookingsaas.service.BusinessService;
@@ -16,7 +15,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.Assert;
 
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @org.springframework.stereotype.Service
@@ -58,6 +59,14 @@ public class BusinessServiceImpl implements BusinessService, BusinessValidator {
     }
 
     @Override
+    public BusinessDto findBusinessByTitle(String businessTitle) {
+        Assert.hasText(businessTitle, "Business title must not be null or blank");
+        Business business = businessRepository.findByTitle(businessTitle)
+                .orElseThrow(() -> new NoSuchElementException("Business not found by title: " + businessTitle));
+        return businessMapper.toDto(business);
+    }
+
+    @Override
     public void isBusinessExistById(Long id) {
         if (!businessRepository.existsById(id))
             throw new NoSuchElementException("Business does not exist");
@@ -85,5 +94,23 @@ public class BusinessServiceImpl implements BusinessService, BusinessValidator {
     public Long countBusinessesByUserId(Long authorizedUserId) {
         Assert.isTrue(authorizedUserId != null && authorizedUserId > 0, "Authorized user ID must be valid");
         return businessRepository.countBusinessesByUserId(authorizedUserId);
+    }
+
+    @Override
+    public List<BusinessDto> findMostPopularFiveBusinessesByBusinessTitle(String businessTitle) {
+        Assert.hasText(businessTitle, "Business title must not be null or blank");
+        return businessRepository.findByTitle(businessTitle).stream()
+                .collect(Collectors.toMap(Function.identity(),
+                        business -> business.getServices().stream()
+                                .flatMap(service -> service.getSchedules().stream())
+                                .mapToInt(schedule -> schedule.getBooks().size())
+                                .sum())
+                )
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.<Business, Integer>comparingByValue().reversed())
+                .limit(5)
+                .map(entry -> businessMapper.toDto(entry.getKey()))
+                .toList();
     }
 }

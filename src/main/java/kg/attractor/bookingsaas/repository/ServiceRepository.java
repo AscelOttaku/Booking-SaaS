@@ -1,5 +1,6 @@
 package kg.attractor.bookingsaas.repository;
 
+import kg.attractor.bookingsaas.dto.ServiceDto;
 import kg.attractor.bookingsaas.models.Service;
 import kg.attractor.bookingsaas.projection.UserBookServiceProjection;
 import org.springframework.data.domain.Page;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -33,4 +35,8 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
             "join sc.service s " +
             "where s.id = :serviceId")
     Page<UserBookServiceProjection> findClientsByServiceId(Long serviceId, Pageable pageable);
+
+    Optional<Service> findMostPopularServiceByBusinessTitle(String businessTitle);
+
+    List<Service> findServicesByBusinessTitle(String businessTitle);
 }

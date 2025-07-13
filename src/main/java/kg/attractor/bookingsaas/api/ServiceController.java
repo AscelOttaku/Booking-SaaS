@@ -18,6 +18,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/services")
 @RequiredArgsConstructor
@@ -107,5 +109,24 @@ public class ServiceController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return service.findClientsByServiceId(serviceId, page, size);
+    }
+
+    @GetMapping("/most-popular/{businessTitle}")
+    @ResponseStatus(HttpStatus.OK)
+    public ServiceDto findMostPopularServiceByBusinessTitle(@PathVariable String businessTitle) {
+        return service.findMostPopularServiceByBusinessTitle(businessTitle);
+    }
+
+    @Operation(
+            summary = "Get services sorted by popularity for a business",
+            description = "Returns a list of services sorted by their popularity for the specified business title."
+    )
+    @GetMapping("/sorted-popular/{businessTitle}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ServiceDto> findServicesSortedByPopularityByBusinessTitle(
+            @Parameter(description = "Title of the business to fetch services for", required = true)
+            @PathVariable String businessTitle
+    ) {
+        return service.findServicesSortedByPopularityByBusinessTitle(businessTitle);
     }
 }

@@ -19,9 +19,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,7 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ServiceServiceImpl implements ServiceService, ServiceValidator, ServiceDurationProvider {
     private final ServiceRepository serviceRepository;
-    private final BusinessValidator businessService;
+    private final BusinessValidator businessValidator;
     private final ServiceMapper serviceMapper;
     private final PageHolderWrapper pageHolderWrapper;
     private final AuthorizedUserService authorizedUserService;
@@ -38,7 +36,7 @@ public class ServiceServiceImpl implements ServiceService, ServiceValidator, Ser
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public ServiceDto createService(ServiceDto dto) {
-        businessService.checkIsBusinessBelongsToAuthUser(dto.getBusinessId());
+        businessValidator.checkIsBusinessBelongsToAuthUser(dto.getBusinessId());
         Service service = serviceMapper.mapToModel(dto);
         return serviceMapper.mapToDto(serviceRepository.save(service));
     }
@@ -46,7 +44,7 @@ public class ServiceServiceImpl implements ServiceService, ServiceValidator, Ser
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public ServiceDto updateService(ServiceDto dto) {
-        businessService.checkIsBusinessBelongsToAuthUser(dto.getBusinessId());
+        businessValidator.checkIsBusinessBelongsToAuthUser(dto.getBusinessId());
         Service existingService = serviceRepository.findById(dto.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Service not found"));
 
@@ -59,14 +57,14 @@ public class ServiceServiceImpl implements ServiceService, ServiceValidator, Ser
         var service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new NoSuchElementException("Service not found " + serviceId));
 
-        businessService.checkIsBusinessBelongsToAuthUser(service.getBusiness().getId());
+        businessValidator.checkIsBusinessBelongsToAuthUser(service.getBusiness().getId());
         serviceRepository.delete(service);
         return serviceMapper.mapToDto(service);
     }
 
     @Override
     public PageHolder<ServiceDto> findAllServicesByBusinessTitle(String businessTitle, int page, int size) {
-        businessService.checkIfBusinessExistByTitle(businessTitle);
+        businessValidator.checkIfBusinessExistByTitle(businessTitle);
         Pageable pageable = PageRequest.of(page, size, Sort.by("serviceName").ascending());
         Page<ServiceDto> pageServices = serviceRepository.findAllByBusinessByTitle(businessTitle, pageable)
                 .map(serviceMapper::mapToDto);
@@ -129,5 +127,30 @@ public class ServiceServiceImpl implements ServiceService, ServiceValidator, Ser
     public int findServiceDurationByScheduleId(Long scheduleId) {
         return serviceRepository.findServiceDurationByScheduleId((scheduleId))
                 .orElseThrow(() -> new NoSuchElementException("Service not found with schedule id: " + scheduleId));
+    }
+
+    @Override
+    public ServiceDto findMostPopularServiceByBusinessTitle(String businessTitle) {
+        businessValidator.checkIsBusinessBelongsToAuthUser(businessTitle);
+        return serviceRepository.findServicesByBusinessTitle(businessTitle)
+                .stream()
+                .max(Comparator.comparing(service -> service.getSchedules().stream()
+                        .mapToInt(schedule -> schedule.getBooks().size())
+                        .sum()
+                ))
+                .map(serviceMapper::mapToDto)
+                .orElseThrow(() -> new NoSuchElementException("No services found for business: " + businessTitle));
+    }
+
+    @Override
+    public List<ServiceDto> findServicesSortedByPopularityByBusinessTitle(String businessTitle) {
+        businessValidator.checkIsBusinessBelongsToAuthUser(businessTitle);
+        return serviceRepository.findServicesByBusinessTitle(businessTitle)
+                .stream()
+                .sorted(Comparator.comparing(service -> service.getSchedules().stream()
+                        .mapToLong(schedule -> schedule.getBooks().size())
+                        .sum()))
+                .map(serviceMapper::mapToDto)
+                .toList();
     }
 }

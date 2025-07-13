@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 public interface ServiceService {
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     ServiceDto createService(ServiceDto dto);
@@ -21,4 +23,8 @@ public interface ServiceService {
     PageHolder<BookServiceDto> findClientsByServiceId(Long serviceId, int page, int size);
 
     ServiceDto findServiceById(Long serviceId);
+
+    ServiceDto findMostPopularServiceByBusinessTitle(String businessTitle);
+
+    List<ServiceDto> findServicesSortedByPopularityByBusinessTitle(String businessTitle);
 }

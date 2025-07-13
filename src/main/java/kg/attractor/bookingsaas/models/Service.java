@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,4 +29,7 @@ public class Service {
 
     @Column(name = "price", nullable = false, columnDefinition = "decimal(10,2)")
     private BigDecimal price;
+
+    @OneToMany(mappedBy = "service", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, orphanRemoval = true)
+    public List<Schedule> schedules;
 }

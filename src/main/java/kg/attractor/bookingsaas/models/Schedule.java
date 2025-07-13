@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -38,4 +39,7 @@ public class Schedule {
 
     @OneToOne(mappedBy = "schedule", cascade = {CascadeType.PERSIST})
     private ScheduleSettings scheduleSettings;
+
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, orphanRemoval = true)
+    public List<Book> books;
 }
