@@ -1,6 +1,7 @@
 package kg.attractor.bookingsaas.api;
 
 import kg.attractor.bookingsaas.dto.DailyScheduleDto;
+import kg.attractor.bookingsaas.dto.ScheduleAvailableSlots;
 import kg.attractor.bookingsaas.dto.WeeklyScheduleDto;
 import kg.attractor.bookingsaas.markers.OnCreate;
 import kg.attractor.bookingsaas.markers.OnUpdate;
@@ -50,5 +51,14 @@ public class ScheduleApi {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteDailySchedule(@PathVariable Long id) {
         scheduleService.deleteDailyScheduleById(id);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("available-slots/{scheduleId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ScheduleAvailableSlots getAvailableSlots(
+            @PathVariable Long scheduleId, @RequestParam String date
+    ) {
+        return scheduleService.findScheduleAvailableSlotsForBooking(scheduleId, date);
     }
 }

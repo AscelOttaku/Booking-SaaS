@@ -4,14 +4,16 @@ import kg.attractor.bookingsaas.dto.BreakPeriodDto;
 import kg.attractor.bookingsaas.dto.mapper.BreakPeriodMapper;
 import kg.attractor.bookingsaas.repository.BreakPeriodRepository;
 import kg.attractor.bookingsaas.service.BreakPeriodService;
+import kg.attractor.bookingsaas.service.BreakValidatorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class BreakPeriodServiceImpl implements BreakPeriodService {
+public class BreakPeriodServiceImpl implements BreakPeriodService, BreakValidatorService {
     private final BreakPeriodRepository breakPeriodRepository;
     private final BreakPeriodMapper breakPeriodMapper;
 
@@ -26,5 +28,17 @@ public class BreakPeriodServiceImpl implements BreakPeriodService {
     public Optional<BreakPeriodDto> findBreakPeriodById(Long id) {
         return breakPeriodRepository.findById(id)
                 .map(breakPeriodMapper::toDto);
+    }
+
+    @Override
+    public BreakPeriodDto findBreakPeriodByScheduleId(Long scheduleId) {
+        return breakPeriodRepository.findByScheduleId(scheduleId)
+                .map(breakPeriodMapper::toDto)
+                .orElseThrow(() -> new IllegalArgumentException("Break period not found for schedule id: " + scheduleId));
+    }
+
+    @Override
+    public boolean isBreakPeriodValid(Long scheduleId, LocalTime startedAt, LocalTime finishedAt) {
+        return !breakPeriodRepository.checkForBreakConflicts(scheduleId, startedAt, finishedAt);
     }
 }

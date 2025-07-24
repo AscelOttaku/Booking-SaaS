@@ -9,5 +9,4 @@ class BookingSaaSApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }

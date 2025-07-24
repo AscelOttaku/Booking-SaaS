@@ -1,14 +1,11 @@
 package kg.attractor.bookingsaas.service.impl;
 
-import kg.attractor.bookingsaas.dto.DailyScheduleDto;
-import kg.attractor.bookingsaas.dto.ScheduleTimeDto;
-import kg.attractor.bookingsaas.dto.WeeklyScheduleDto;
+import kg.attractor.bookingsaas.dto.*;
 import kg.attractor.bookingsaas.dto.mapper.impl.ScheduleMapper;
+import kg.attractor.bookingsaas.models.Book;
 import kg.attractor.bookingsaas.models.Schedule;
 import kg.attractor.bookingsaas.repository.ScheduleRepository;
-import kg.attractor.bookingsaas.service.ScheduleService;
-import kg.attractor.bookingsaas.service.ScheduleValidator;
-import kg.attractor.bookingsaas.service.ServiceValidator;
+import kg.attractor.bookingsaas.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -16,7 +13,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -26,11 +27,14 @@ import java.util.stream.Collectors;
 public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
     private final ScheduleRepository scheduleRepository;
     private final ScheduleMapper scheduleMapper;
-    private final ServiceValidator serviceService;
+    private final ServiceValidator serviceValidator;
+    private final ServiceDurationProvider serviceDurationProvider;
+    private final HolidaysService holidaysService;
+    private final BreakValidatorService breakValidatorService;
 
     @Override
     public DailyScheduleDto createDailySchedule(DailyScheduleDto dailyScheduleDto) {
-        serviceService.checkServiceBelongsToAuthUser(dailyScheduleDto.getServiceId());
+        serviceValidator.checkServiceBelongsToAuthUser(dailyScheduleDto.getServiceId());
 
         var result = scheduleRepository.notExistByDayOfWeekIdAndServiceId(dailyScheduleDto.getDayOfWeekId(), dailyScheduleDto.getServiceId());
         if (!result)
@@ -47,7 +51,7 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
         Assert.notNull(weeklyScheduleDto, "weeklyScheduleDto must not be null");
         Assert.notNull(weeklyScheduleDto.getServiceId(), "Service ID must not be null");
 
-        serviceService.checkServiceBelongsToAuthUser(weeklyScheduleDto.getServiceId());
+        serviceValidator.checkServiceBelongsToAuthUser(weeklyScheduleDto.getServiceId());
         List<Long> existingDays = scheduleRepository.findDayOfWeekIdsByServiceIdAndDayOfWeekIds(
                 weeklyScheduleDto.getServiceId(),
                 weeklyScheduleDto.getDailySchedules().stream()
@@ -78,7 +82,7 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
         Assert.notNull(dailyScheduleDto, "dailyScheduleDto must not be null");
         Assert.notNull(dailyScheduleDto.getId(), "ID must not be null");
 
-        serviceService.checkServiceBelongsToAuthUser(dailyScheduleDto.getServiceId());
+        serviceValidator.checkServiceBelongsToAuthUser(dailyScheduleDto.getServiceId());
 
         var existingSchedule = scheduleRepository.findById(dailyScheduleDto.getId())
                 .orElseThrow(() -> new NoSuchElementException("Schedule with ID " + dailyScheduleDto.getId() + " does not exist"));
@@ -90,11 +94,11 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public WeeklyScheduleDto updateWeeklySchedule(WeeklyScheduleDto weeklyScheduleDto) {
-        serviceService.checkServiceBelongsToAuthUser(weeklyScheduleDto.getServiceId());
+        serviceValidator.checkServiceBelongsToAuthUser(weeklyScheduleDto.getServiceId());
 
         weeklyScheduleDto.getDailySchedules().forEach(schedule -> {
             schedule.setServiceId(weeklyScheduleDto.getServiceId());
-            serviceService.checkServiceBelongsToAuthUser(schedule.getServiceId());
+            serviceValidator.checkServiceBelongsToAuthUser(schedule.getServiceId());
             var existingSchedule = scheduleRepository.findById(schedule.getId())
                     .orElseThrow(() -> new NoSuchElementException("Schedule with ID " + schedule.getId() + " does not exist"));
             scheduleMapper.updateFrom(schedule, existingSchedule);
@@ -109,7 +113,7 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
     public List<DailyScheduleDto> findAllByServiceId(Long serviceId) {
         Assert.notNull(serviceId, "serviceId must not be null");
 
-        serviceService.checkServiceBelongsToAuthUser(serviceId);
+        serviceValidator.checkServiceBelongsToAuthUser(serviceId);
         return scheduleRepository.findAllByServiceId(serviceId)
                 .stream()
                 .map(scheduleMapper::mapToDto)
@@ -154,7 +158,7 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
 
         var schedule = scheduleRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Schedule with ID " + id + " does not exist"));
-        serviceService.checkServiceBelongsToAuthUser(schedule.getService().getId());
+        serviceValidator.checkServiceBelongsToAuthUser(schedule.getService().getId());
         scheduleRepository.deleteById(id);
     }
 
@@ -167,5 +171,74 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
         }
 
         return scheduleRepository.findScheduleDurationById(scheduleId);
+    }
+
+    @Override
+    public ScheduleAvailableSlots findScheduleAvailableSlotsForBooking(Long scheduleId, String date) {
+        Assert.notNull(scheduleId, "scheduleId must not be null");
+
+        var schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new NoSuchElementException("Schedule with ID " + scheduleId + " does not exist"));
+
+        LocalDate workDate = LocalDate.parse(date);
+
+        // Validate for holidays date
+        boolean isHoliday = holidaysService.getHolidaysByYearFromDb(workDate.getYear())
+                .stream()
+                .anyMatch(holiday -> holiday.getDate().equals(workDate));
+
+        if (isHoliday) {
+            throw new IllegalArgumentException("The date conflicts with a holiday.");
+        }
+
+        // Get books for the current date
+        List<Book> currentDateBooks = schedule.getBooks()
+                .stream()
+                .filter(book -> book.getStartedAt().toLocalDate().equals(workDate))
+                .toList();
+
+        LocalTime startTime = schedule.getStartTime();
+        LocalTime endTime = schedule.getEndTime();
+
+        List<AvailableSlotForBooking> availableSlots = new ArrayList<>();
+
+        LocalDateTime startWorkTime = LocalDateTime.of(workDate, startTime);
+        LocalDateTime endWorkTime = LocalDateTime.of(workDate, endTime);
+
+        // Get the break duration for the schedule
+        int breakDuration = findDurationBetweenBooksByScheduleId(scheduleId);
+
+        // Get available slots based on existing books
+        for (Book book : currentDateBooks) {
+            LocalDateTime startBook = book.getStartedAt();
+            LocalDateTime endBook = book.getFinishedAt();
+
+            if (startWorkTime.isBefore(startBook)) {
+                boolean isBreakValid = breakValidatorService.isBreakPeriodValid(scheduleId, startWorkTime.toLocalTime(), startBook.toLocalTime());
+                if (isBreakValid)
+                    availableSlots.add(new AvailableSlotForBooking(startWorkTime, startBook));
+            }
+
+            if (endBook.isAfter(startWorkTime))
+                startWorkTime = endBook.plusMinutes(breakDuration);
+        }
+
+        if (startWorkTime.isBefore(endWorkTime)) {
+            boolean isBreakValid = breakValidatorService.isBreakPeriodValid(scheduleId, startWorkTime.toLocalTime(), endWorkTime.toLocalTime());
+            if (isBreakValid)
+                availableSlots.add(new AvailableSlotForBooking(startWorkTime, endWorkTime));
+        }
+
+        // Validate available slots against service duration
+        int serviceDuration = serviceDurationProvider.findServiceDurationByScheduleId(scheduleId);
+        var validatedAvailableSlotsForBooking = availableSlots.stream()
+                .filter(slot ->
+                        Duration.between(slot.getStartTime(), slot.getEndTime()).toMinutes() >= serviceDuration)
+                .toList();
+
+        return ScheduleAvailableSlots.builder()
+                .dailyScheduleDto(scheduleMapper.mapToDto(schedule))
+                .availableSlotForBooking(validatedAvailableSlotsForBooking)
+                .build();
     }
 }

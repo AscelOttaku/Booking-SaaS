@@ -20,7 +20,7 @@ public interface ServiceService {
 
     PageHolder<ServiceDto> findAllServicesByBusinessTitle(String businessTitle, int page, int size);
 
-    PageHolder<BookServiceDto> findClientsByServiceId(Long serviceId, int page, int size);
+    PageHolder<BookServiceDto> findServiceAndBooksByServiceId(Long serviceId, int page, int size);
 
     ServiceDto findServiceById(Long serviceId);
 

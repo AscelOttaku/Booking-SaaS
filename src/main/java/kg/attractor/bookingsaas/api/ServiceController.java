@@ -108,7 +108,7 @@ public class ServiceController {
             @PathVariable Long serviceId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return service.findClientsByServiceId(serviceId, page, size);
+        return service.findServiceAndBooksByServiceId(serviceId, page, size);
     }
 
     @GetMapping("/most-popular/{businessTitle}")

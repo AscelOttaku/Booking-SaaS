@@ -1,10 +1,8 @@
 package kg.attractor.bookingsaas.repository;
 
 import kg.attractor.bookingsaas.models.Business;
-import kg.attractor.bookingsaas.models.BusinessReview;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,6 +30,7 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
             """)
     List<UserBusinessServiceProjection> getUserBusinessServiceBookByBusinessId(Long businessId);
 
+    @EntityGraph(value = "business-with-all", type = EntityGraph.EntityGraphType.LOAD)
     @Query("SELECT b FROM Business b WHERE b.title LIKE %:name%")
     List<Business> findByNameContaining(String name);
 

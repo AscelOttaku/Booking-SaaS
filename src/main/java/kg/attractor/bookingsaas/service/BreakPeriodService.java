@@ -8,4 +8,6 @@ public interface BreakPeriodService {
     BreakPeriodDto getBreakPeriodById(Long id);
 
     Optional<BreakPeriodDto> findBreakPeriodById(Long id);
+
+    BreakPeriodDto findBreakPeriodByScheduleId(Long scheduleId);
 }

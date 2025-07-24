@@ -13,7 +13,6 @@ import java.util.List;
                 @NamedAttributeNode("user"),
                 @NamedAttributeNode("city"),
                 @NamedAttributeNode("businessCategory"),
-                @NamedAttributeNode("businessUnderCategories"),
                 @NamedAttributeNode(value = "services", subgraph = "services-subgraph")
         },
         subgraphs = {
@@ -61,11 +60,11 @@ public class Business {
     @JoinColumn(name = "city_id", nullable = false)
     private City city;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "business_category_id", nullable = false)
     private BusinessCategory businessCategory;
 
-    @OneToMany(mappedBy = "business")
+    @OneToMany(mappedBy = "business", fetch = FetchType.LAZY)
     private List<BusinessUnderCategory> businessUnderCategories;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT now()", updatable = false)
@@ -74,7 +73,7 @@ public class Business {
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT now()")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "business")
+    @OneToMany(mappedBy = "business", fetch = FetchType.LAZY)
     private List<Service> services;
 
     @PrePersist

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -85,4 +86,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "join s.business bs " +
             "where b.id = :bookId")
     Optional<BookInfoDto> findBookInfoById(Long bookId);
+
+    List<Book> findAllBooksByScheduleId(Long scheduleId);
 }

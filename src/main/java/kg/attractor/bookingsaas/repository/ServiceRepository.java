@@ -1,6 +1,5 @@
 package kg.attractor.bookingsaas.repository;
 
-import kg.attractor.bookingsaas.dto.ServiceDto;
 import kg.attractor.bookingsaas.models.Service;
 import kg.attractor.bookingsaas.projection.UserBookServiceProjection;
 import org.springframework.data.domain.Page;
@@ -14,14 +13,10 @@ import java.util.Optional;
 
 @Repository
 public interface ServiceRepository extends JpaRepository<Service, Long> {
-    Page<Service> findAllByBusinessId(Long businessId, Pageable pageable);
-
     @Query("select s from Service s " +
             "join s.business b " +
             "where b.title like :businessTitle")
-    Page<Service> findAllByBusinessByTitle(String businessTitle, Pageable pageable);
-
-    Optional<Integer> findServiceDurationById(Long id);
+    Page<Service> findAllByBusinessTitle(String businessTitle, Pageable pageable);
 
     @Query("select s.durationInMinutes from Service s " +
             "join Schedule sc on sc.service.id = s.id " +

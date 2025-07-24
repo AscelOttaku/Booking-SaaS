@@ -66,13 +66,13 @@ public class ServiceServiceImpl implements ServiceService, ServiceValidator, Ser
     public PageHolder<ServiceDto> findAllServicesByBusinessTitle(String businessTitle, int page, int size) {
         businessValidator.checkIfBusinessExistByTitle(businessTitle);
         Pageable pageable = PageRequest.of(page, size, Sort.by("serviceName").ascending());
-        Page<ServiceDto> pageServices = serviceRepository.findAllByBusinessByTitle(businessTitle, pageable)
+        Page<ServiceDto> pageServices = serviceRepository.findAllByBusinessTitle(businessTitle, pageable)
                 .map(serviceMapper::mapToDto);
         return pageHolderWrapper.wrapPageHolder(pageServices);
     }
 
     @Override
-    public PageHolder<BookServiceDto> findClientsByServiceId(Long serviceId, int page, int size) {
+    public PageHolder<BookServiceDto> findServiceAndBooksByServiceId(Long serviceId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
         var clientsPage = serviceRepository.findClientsByServiceId(serviceId, pageable);
 

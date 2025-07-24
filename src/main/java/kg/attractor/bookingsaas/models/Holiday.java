@@ -22,7 +22,7 @@ public class Holiday {
     @Column(name = "local_name", length = 255)
     private String localName;
 
-    @Column(length = 255, nullable = false)
+    @Column(length = 255, nullable = false, unique = true)
     private String name;
 
     @Column(name = "country_code", nullable = false, length = 10)
