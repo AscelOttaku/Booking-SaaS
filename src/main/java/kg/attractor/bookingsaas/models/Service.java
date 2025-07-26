@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -31,5 +32,5 @@ public class Service {
     private BigDecimal price;
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, orphanRemoval = true)
-    public List<Schedule> schedules;
+    public List<Schedule> schedules = new ArrayList<>();
 }

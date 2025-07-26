@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,7 +16,7 @@ public interface BreakPeriodRepository extends JpaRepository<BreakPeriod, Long> 
             "join bp.settings s " +
             "join s.schedule sch " +
             "where sch.id = :scheduleId")
-    Optional<BreakPeriod> findByScheduleId(Long scheduleId);
+    List<BreakPeriod> findByScheduleId(Long scheduleId);
 
     @Query("select count (bp) > 0 from BreakPeriod bp " +
             "join bp.settings.schedule s " +

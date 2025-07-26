@@ -17,8 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
-    Optional<User> findUserByEmail(String email);
-
     @Query("select count(u) > 0 from User u where u.phone = :phoneNumber")
     boolean existByPhoneNumber(String phoneNumber);
 

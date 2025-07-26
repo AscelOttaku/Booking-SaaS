@@ -2,6 +2,7 @@ package kg.attractor.bookingsaas.service;
 
 import kg.attractor.bookingsaas.dto.BreakPeriodDto;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface BreakPeriodService {
@@ -9,5 +10,5 @@ public interface BreakPeriodService {
 
     Optional<BreakPeriodDto> findBreakPeriodById(Long id);
 
-    BreakPeriodDto findBreakPeriodByScheduleId(Long scheduleId);
+    List<BreakPeriodDto> findBreakPeriodByScheduleId(Long scheduleId);
 }

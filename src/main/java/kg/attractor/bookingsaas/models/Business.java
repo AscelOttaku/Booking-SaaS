@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @NamedEntityGraph(
@@ -39,6 +40,7 @@ public class Business {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "title", unique = true, nullable = false)
     private String title;
 
     @Column(columnDefinition = "TEXT")
@@ -74,7 +76,7 @@ public class Business {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "business", fetch = FetchType.LAZY)
-    private List<Service> services;
+    private List<Service> services = new ArrayList<>();
 
     @PrePersist
     public void setCreatedAt() {

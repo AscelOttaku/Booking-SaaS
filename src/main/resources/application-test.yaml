@@ -5,10 +5,19 @@ spring:
     username: Test
     password: Test
 
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
   jpa:
     hibernate:
       ddl-auto: create
     database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
   flyway:
     enabled: false

@@ -218,9 +218,13 @@ class BusinessRepositoryTest {
         var optionalBusiness = businessRepository.findByTitle(businessTitle);
 
         // Then
-        Assertions.assertThat(optionalBusiness).isPresent();
-        Assertions.assertThat(optionalBusiness.get().getId()).isEqualTo(business.getId());
+        Assertions.assertThat(optionalBusiness).isPresent()
+                .get()
+                .extracting(Business::getId)
+                .isEqualTo(business.getId());
+
         Assertions.assertThat(optionalBusiness.get().getUser().getId()).isEqualTo(user.getId());
+
         Assertions.assertThat(optionalBusiness.get().getServices())
                 .isNotNull()
                 .isNotEmpty()

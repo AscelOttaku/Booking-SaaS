@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,10 +32,11 @@ public class BreakPeriodServiceImpl implements BreakPeriodService, BreakValidato
     }
 
     @Override
-    public BreakPeriodDto findBreakPeriodByScheduleId(Long scheduleId) {
+    public List<BreakPeriodDto> findBreakPeriodByScheduleId(Long scheduleId) {
         return breakPeriodRepository.findByScheduleId(scheduleId)
+                .stream()
                 .map(breakPeriodMapper::toDto)
-                .orElseThrow(() -> new IllegalArgumentException("Break period not found for schedule id: " + scheduleId));
+                .toList();
     }
 
     @Override

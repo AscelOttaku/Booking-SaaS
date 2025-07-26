@@ -22,7 +22,7 @@ public class BreakPeriod {
     @Column(name = "end_time", nullable = false)
     private LocalTime end;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "schedule_settings_id", nullable = false)
     private ScheduleSettings settings;
 }
