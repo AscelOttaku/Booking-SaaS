@@ -18,7 +18,7 @@ public interface ScheduleService {
 
     WeeklyScheduleDto updateWeeklySchedule(WeeklyScheduleDto weeklyScheduleDto);
 
-    Long findMaxBookingSizeByScheduleId(Long scheduleId);
+    int findMaxBookingSizeByScheduleId(Long scheduleId);
 
     ScheduleTimeDto findScheduleTimeById(Long id);
 

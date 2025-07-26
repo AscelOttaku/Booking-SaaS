@@ -18,6 +18,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "Bookings", description = "APIs for managing bookings")
 @RestController
 @RequestMapping("api/booked")
@@ -79,14 +81,14 @@ public class BookApi {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("client/history/my")
     @ResponseStatus(HttpStatus.OK)
-    public BookInfoDto findUserHistory() {
+    public List<BookInfoDto> findUserHistory() {
         return bookService.findUserHistory();
     }
 
     @PreAuthorize("hasAnyAuthority('BUSINESS_OWNER')")
     @GetMapping("client/{clientId}/history")
     @ResponseStatus(HttpStatus.OK)
-    public BookInfoDto findClientHistoryById(@PathVariable Long clientId) {
+    public List<BookInfoDto> findClientHistoryById(@PathVariable Long clientId) {
         return bookService.findUserHistoryByUserId(clientId);
     }
 

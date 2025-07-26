@@ -121,7 +121,7 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
     }
 
     @Override
-    public Long findMaxBookingSizeByScheduleId(Long scheduleId) {
+    public int findMaxBookingSizeByScheduleId(Long scheduleId) {
         return scheduleRepository.findMaxBookingSizeByScheduleId(scheduleId);
     }
 

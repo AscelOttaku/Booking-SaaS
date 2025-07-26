@@ -2,7 +2,6 @@ package kg.attractor.bookingsaas.repository;
 
 import kg.attractor.bookingsaas.dto.booked.BookInfoDto;
 import kg.attractor.bookingsaas.models.Book;
-import kg.attractor.bookingsaas.projection.BookInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -61,7 +60,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("select new kg.attractor.bookingsaas.dto.booked.BookInfoDto(" +
             "b.id, " +
             "new kg.attractor.bookingsaas.dto.user.OutputUserDto(" +
-            "u.firstName, u.middleName, u.lastName, u.phone, u.email, u.logo, u.role.roleName" +
+            "u.firstName, u.middleName, u.lastName, u.phone, u.email, u.logo, r.roleName" +
             ")," +
             "s.serviceName, bs.title, b.startedAt, b.finishedAt" +
             ") from Book b " +
@@ -70,8 +69,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "join u.role r " +
             "join sc.service s " +
             "join s.business bs " +
-            "where u.id = :authUserId and b.finishedAt is not null and b.finishedAt < CURRENT_TIMESTAMP")
-    Optional<BookInfoDto> findUserHistoryById(Long authUserId);
+            "where u.id = :authUserId and b.finishedAt is not null and b.finishedAt < CURRENT_TIMESTAMP " +
+            "order by b.finishedAt desc")
+    List<BookInfoDto> findUserHistoryById(Long authUserId);
 
     @Query("select new kg.attractor.bookingsaas.dto.booked.BookInfoDto(" +
             "b.id, " +

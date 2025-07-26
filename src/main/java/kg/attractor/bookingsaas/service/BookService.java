@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 public interface BookService {
     PageHolder<BookDto> findAllBooksByServiceId(Long serviceId, int page, int size);
 
@@ -14,9 +16,9 @@ public interface BookService {
 
     PageHolder<BookInfoDto> findAlUsersBookedHistory(int page, int size);
 
-    BookInfoDto findUserHistory();
+    List<BookInfoDto> findUserHistory();
 
-    BookInfoDto findUserHistoryByUserId(Long userId);
+    List<BookInfoDto> findUserHistoryByUserId(Long userId);
 
     BookDto createBook(BookDto bookDto);
 

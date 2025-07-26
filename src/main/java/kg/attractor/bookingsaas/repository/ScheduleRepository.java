@@ -21,7 +21,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     @Query("select s.maxBookingSize from Schedule s " +
             "where s.id = :scheduleId")
-    long findMaxBookingSizeByScheduleId(Long scheduleId);
+    int findMaxBookingSizeByScheduleId(Long scheduleId);
 
     @Query("select new kg.attractor.bookingsaas.dto.ScheduleTimeDto(s.startTime, s.endTime, s.id) " +
             "from Schedule s where s.id = :id")

@@ -28,6 +28,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -70,16 +71,14 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookInfoDto findUserHistory() {
+    public List<BookInfoDto> findUserHistory() {
         Long authUserId = authorizedUserService.getAuthorizedUserId();
-        return bookRepository.findUserHistoryById(authUserId)
-                .orElseThrow(() -> new NoSuchElementException("No booking history found for the user."));
+        return bookRepository.findUserHistoryById(authUserId);
     }
 
     @Override
-    public BookInfoDto findUserHistoryByUserId(Long userId) {
-        return bookRepository.findUserHistoryById(userId)
-                .orElseThrow(() -> new NoSuchElementException("No booking history found for the user with id: " + userId));
+    public List<BookInfoDto> findUserHistoryByUserId(Long userId) {
+        return bookRepository.findUserHistoryById(userId);
     }
 
     @Override
