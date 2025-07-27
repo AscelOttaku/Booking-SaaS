@@ -22,5 +22,5 @@ public interface BusinessService {
 
     Long countBusinessesByUserId(Long authorizedUserId);
 
-    List<BusinessDto> findMostPopularFiveBusinessesByBusinessTitle(String businessTitle);
+    List<BusinessDto> findMostPopularFiveBusinessesByBusinessTitleContatining(String businessTitle);
 }

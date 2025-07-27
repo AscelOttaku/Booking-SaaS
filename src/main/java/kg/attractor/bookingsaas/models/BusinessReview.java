@@ -29,7 +29,7 @@ public class BusinessReview {
     private String reviewText;
 
     @Column(columnDefinition = "numeric")
-    private BigDecimal rating;
+    private Double rating;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

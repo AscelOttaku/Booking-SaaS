@@ -53,6 +53,7 @@ class UserRepositoryTest {
     private DayOfWeekRepository dayOfWeekRepository;
 
     private Service firstService;
+    private Business business;
 
     @BeforeEach
     void initialize() {
@@ -88,7 +89,7 @@ class UserRepositoryTest {
         businessCategory.setName("Test Category");
 
         // Create Business
-        Business business = new Business();
+        business = new Business();
         business.setUser(users.get(0));
         business.setTitle("Business");
         business.setDescription("Description for business ");
@@ -208,7 +209,7 @@ class UserRepositoryTest {
     @Test
     void findUsersByBusinessId() {
         // Given
-        Long businessId = 1L;
+        Long businessId = business.getId();
 
         // When
         var users = userRepository.findUsersByBusinessId(businessId);

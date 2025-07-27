@@ -18,6 +18,9 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class BusinessDto {
     @Null(groups = OnCreate.class, message = "id must be null on create")
     @NotNull(groups = OnUpdate.class, message = "id must not be null on update")

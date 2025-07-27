@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import kg.attractor.bookingsaas.annotations.UniqueUserEmail;
 import kg.attractor.bookingsaas.annotations.UniqueUserPhoneNumber;
 import kg.attractor.bookingsaas.dto.user.UserDto;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Запрос на регистрацию пользователя")
 public class SignUpRequest extends UserDto {
 

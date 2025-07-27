@@ -41,7 +41,10 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
     @Query("select u.name from Business b join b.businessUnderCategories u where b.id = :id")
     List<String> getBusinessUnderCategoryNames(@Param("id") Long id);
 
-    Optional<Business> findByTitle(String businessTitle);
+    @Query("SELECT b FROM Business b WHERE b.title ilike :businessTitle")
+    List<Business> findByTitleContaining(String businessTitle);
+
+    Optional<Business> findByTitle(String title);
 
     @EntityGraph(value = "business-with-all", type = EntityGraph.EntityGraphType.LOAD)
     @Query("SELECT b FROM Business b")

@@ -97,9 +97,9 @@ public class BusinessServiceImpl implements BusinessService, BusinessValidator {
     }
 
     @Override
-    public List<BusinessDto> findMostPopularFiveBusinessesByBusinessTitle(String businessTitle) {
+    public List<BusinessDto> findMostPopularFiveBusinessesByBusinessTitleContatining(String businessTitle) {
         Assert.hasText(businessTitle, "Business title must not be null or blank");
-        return businessRepository.findByTitle(businessTitle).stream()
+        return businessRepository.findByTitleContaining(businessTitle).stream()
                 .collect(Collectors.toMap(Function.identity(),
                         business -> business.getServices().stream()
                                 .flatMap(service -> service.getSchedules().stream())

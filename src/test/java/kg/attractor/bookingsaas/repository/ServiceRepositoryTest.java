@@ -58,8 +58,10 @@ class ServiceRepositoryTest {
     @Autowired
     private BookRepository bookRepository;
 
+    private Schedule schedule;
+    private Service firstService;
+
     @BeforeEach
-    @Rollback(value = false)
     void setUp() {
         // Create and save Role
         Role role = new Role();
@@ -120,7 +122,8 @@ class ServiceRepositoryTest {
                     return newService;
                 })
                 .toList();
-        serviceRepository.saveAll(services);
+        services = serviceRepository.saveAll(services);
+        firstService = services.get(0);
 
         // Create and save DayOfWeek
         DayOfWeek dayOfWeek = new DayOfWeek();
@@ -131,7 +134,7 @@ class ServiceRepositoryTest {
         // Create and save Schedule
         Service service = services.get(0);
         log.info("Service Name: {}, Service duration: {}", service.getServiceName(), service.getDurationInMinutes());
-        Schedule schedule = new Schedule();
+        schedule = new Schedule();
         schedule.setService(service);
         schedule.setStartTime(LocalTime.of(9, 0));
         schedule.setEndTime(LocalTime.of(17, 0));
@@ -178,9 +181,11 @@ class ServiceRepositoryTest {
 
     @Test
     void findServiceDurationByScheduleId() {
+        // Given
+        Long scheduleId = schedule.getId();
 
         // When
-        Optional<Integer> foundServiceDuration = serviceRepository.findServiceDurationByScheduleId(1L);
+        Optional<Integer> foundServiceDuration = serviceRepository.findServiceDurationByScheduleId(scheduleId);
 
         // Then
         Assertions.assertThat(foundServiceDuration)
@@ -191,10 +196,12 @@ class ServiceRepositoryTest {
 
     @Test
     void findClientsByServiceId() {
+        // Given
+        Long serviceId = firstService.getId();
 
         // When
         Pageable pageable = PageRequest.of(0, 10);
-        Page<UserBookServiceProjection> userBookServiceProjections = serviceRepository.findClientsByServiceId(1L, pageable);
+        Page<UserBookServiceProjection> userBookServiceProjections = serviceRepository.findClientsByServiceId(serviceId, pageable);
 
         // Then
         Assertions.assertThat(userBookServiceProjections)

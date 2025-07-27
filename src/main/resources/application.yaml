@@ -3,9 +3,9 @@ spring:
     name: booking-saas
 
   datasource:
-    url: jdbc:postgresql://dpg-d1e4kpngi27c7388qbs0-a.oregon-postgres.render.com:5432/saas_book_postgres
-    username: root
-    password: sVxkZhtP0MArgXESPmJnJb7udyiV13VT
+    url: jdbc:postgresql://localhost:5432/booking_saas
+    username: postgres
+    password: Kanybek12345
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -16,15 +16,14 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   flyway:
-    url: jdbc:postgresql://dpg-d1e4kpngi27c7388qbs0-a.oregon-postgres.render.com:5432/saas_book_postgres
-    user: root
-    password: sVxkZhtP0MArgXESPmJnJb7udyiV13VT
+    url: jdbc:postgresql://localhost:5432/booking_saas
+    password: Kanybek12345
+    user: postgres
     locations: classpath:db/migration
     enabled: true
     validate-on-migrate: false
 
-
-# Email sender configuration
+  # Email sender configuration
   mail:
     host: smtp.gmail.com
     username: zhanybek20065732@gmail.com

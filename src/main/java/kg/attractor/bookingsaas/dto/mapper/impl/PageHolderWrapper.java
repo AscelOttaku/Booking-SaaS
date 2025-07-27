@@ -2,6 +2,7 @@ package kg.attractor.bookingsaas.dto.mapper.impl;
 
 
 import kg.attractor.bookingsaas.dto.PageHolder;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;

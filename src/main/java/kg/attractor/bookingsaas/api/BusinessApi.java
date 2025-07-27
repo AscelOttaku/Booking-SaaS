@@ -48,6 +48,6 @@ public class BusinessApi {
             @Parameter(description = "Название бизнеса", required = true, example = "Coffee Shop")
             @PathVariable String businessTitle
     ) {
-        return businessService.findMostPopularFiveBusinessesByBusinessTitle(businessTitle);
+        return businessService.findMostPopularFiveBusinessesByBusinessTitleContatining(businessTitle);
     }
 }

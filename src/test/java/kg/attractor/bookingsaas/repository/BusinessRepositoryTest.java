@@ -102,6 +102,9 @@ class BusinessRepositoryTest {
         newService.setPrice(BigDecimal.valueOf(100.00));
         this.services = serviceRepository.save(newService);
 
+        // Business Service association
+        business.getServices().add(newService);
+
         // Create and save DayOfWeek
         DayOfWeek dayOfWeek = new DayOfWeek();
         dayOfWeek.setName("Monday");
@@ -210,7 +213,7 @@ class BusinessRepositoryTest {
     }
 
     @Test
-    void findByTitle() {
+    void findByTitleContaining() {
         // Given
         String businessTitle = "Test Business";
 
