@@ -3,26 +3,27 @@ package kg.attractor.bookingsaas.service.impl;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import kg.attractor.bookingsaas.service.EmailService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
+    private final String emailFrom;
 
-    @Value("${spring.mail.username}")
-    private String EMAIL_FROM;
+    public EmailServiceImpl(JavaMailSender mailSender, @Value("${spring.mail.username}") String emailFrom) {
+        this.mailSender = mailSender;
+        this.emailFrom = emailFrom;
+    }
 
     @Override
     public void sendCreatedBookedEmai(String toEmail, String link) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        helper.setFrom(EMAIL_FROM);
+        helper.setFrom(emailFrom);
         helper.setTo(toEmail);
 
         String subject = "Congratulations! Your booking is confirmed";
@@ -44,7 +45,7 @@ public class EmailServiceImpl implements EmailService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        helper.setFrom(EMAIL_FROM);
+        helper.setFrom(emailFrom);
         helper.setTo(toEmail);
 
         String subject = "Your booking has been canceled";
