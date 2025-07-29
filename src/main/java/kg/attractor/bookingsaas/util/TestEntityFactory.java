@@ -2,11 +2,13 @@ package kg.attractor.bookingsaas.util;
 
 import kg.attractor.bookingsaas.enums.BookStatus;
 import kg.attractor.bookingsaas.models.*;
+import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@UtilityClass
 public class TestEntityFactory {
 
     public static User createUser(Long id, String email) {

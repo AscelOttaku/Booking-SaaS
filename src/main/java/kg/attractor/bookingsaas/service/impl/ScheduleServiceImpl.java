@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
     private final ServiceDurationProvider serviceDurationProvider;
     private final HolidaysService holidaysService;
     private final BreakValidatorService breakValidatorService;
+    private final BreakPeriodService breakPeriodService;
 
     @Override
     public DailyScheduleDto createDailySchedule(DailyScheduleDto dailyScheduleDto) {
@@ -184,20 +186,9 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate workDate = LocalDate.parse(date, dateTimeFormatter);
 
-        // Validate for holidays date
-        boolean isHoliday = holidaysService.getHolidaysByYearFromDb(workDate.getYear())
-                .stream()
-                .anyMatch(holiday -> holiday.getDate().equals(workDate));
+        checkHoliday(workDate);
 
-        if (isHoliday) {
-            throw new IllegalArgumentException("The date conflicts with a holiday.");
-        }
-
-        // Get books for the current date
-        List<Book> currentDateBooks = schedule.getBooks()
-                .stream()
-                .filter(book -> book.getStartedAt().toLocalDate().equals(workDate))
-                .toList();
+        List<Book> currentDateBooks = getOccupiedBooksForDate(schedule, workDate);
 
         LocalTime startTime = schedule.getStartTime();
         LocalTime endTime = schedule.getEndTime();
@@ -208,27 +199,33 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
         LocalDateTime endWorkTime = LocalDateTime.of(workDate, endTime);
 
         // Get the break duration for the schedule
-        int breakDuration = findDurationBetweenBooksByScheduleId(scheduleId);
+        int durationBetweenBookingsInMinutes = findDurationBetweenBooksByScheduleId(scheduleId);
+
+        // Get the all break periods for the schedule
+        var breakPeriodDtos = breakPeriodService.findBreakPeriodByScheduleId(scheduleId);
 
         // Get available slots based on existing books
         for (Book book : currentDateBooks) {
-            LocalDateTime startBook = book.getStartedAt();
-            LocalDateTime endBook = book.getFinishedAt();
+            LocalDateTime startBook = book.getStartedAt().minusMinutes(durationBetweenBookingsInMinutes);
+            LocalDateTime endBook = book.getFinishedAt().plusMinutes(durationBetweenBookingsInMinutes);
 
             if (startWorkTime.isBefore(startBook)) {
-                boolean isBreakValid = breakValidatorService.isBreakPeriodValid(scheduleId, startWorkTime.toLocalTime(), startBook.toLocalTime());
-                if (isBreakValid)
-                    availableSlots.add(new AvailableSlotForBooking(startWorkTime, startBook));
+                // Exclude break periods from the available slot
+                var availableSlotsForBookingExcludingBreaks = excludeBreakPeriods(
+                        startWorkTime, startBook, breakPeriodDtos, workDate
+                );
+                availableSlots.addAll(availableSlotsForBookingExcludingBreaks);
             }
 
             if (endBook.isAfter(startWorkTime))
-                startWorkTime = endBook.plusMinutes(breakDuration);
+                startWorkTime = endBook;
         }
 
         if (startWorkTime.isBefore(endWorkTime)) {
-            boolean isBreakValid = breakValidatorService.isBreakPeriodValid(scheduleId, startWorkTime.toLocalTime(), endWorkTime.toLocalTime());
-            if (isBreakValid)
-                availableSlots.add(new AvailableSlotForBooking(startWorkTime, endWorkTime));
+            var availableSlotsForBookingExcludingBreaks = excludeBreakPeriods(
+                    startWorkTime, endWorkTime, breakPeriodDtos, workDate
+            );
+            availableSlots.addAll(availableSlotsForBookingExcludingBreaks);
         }
 
         // Validate available slots against service duration
@@ -242,5 +239,52 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
                 .dailyScheduleDto(scheduleMapper.mapToDto(schedule))
                 .availableSlotForBooking(validatedAvailableSlotsForBooking)
                 .build();
+    }
+
+    private static List<Book> getOccupiedBooksForDate(Schedule schedule, LocalDate workDate) {
+        return schedule.getBooks()
+                .stream()
+                .filter(book -> book.getStartedAt().toLocalDate().equals(workDate))
+                .sorted(Comparator.comparing(Book::getStartedAt))
+                .toList();
+    }
+
+    private void checkHoliday(LocalDate workDate) {
+        boolean isHoliday = holidaysService.getHolidaysByYearFromDb(workDate.getYear())
+                .stream()
+                .anyMatch(holiday -> holiday.getDate().equals(workDate));
+
+        if (isHoliday) {
+            throw new IllegalArgumentException("The date conflicts with a holiday.");
+        }
+    }
+
+    private List<AvailableSlotForBooking> excludeBreakPeriods(
+            LocalDateTime slotStart, LocalDateTime slotEnd,
+            List<BreakPeriodDto> breakPeriods,
+            LocalDate workDate
+    ) {
+        LocalDateTime currentStart = slotStart;
+
+        List<AvailableSlotForBooking> availableSlots = new ArrayList<>();
+
+        for (BreakPeriodDto breakPeriodDto : breakPeriods) {
+            LocalDateTime breakStart = LocalDateTime.of(workDate, breakPeriodDto.getStart());
+            LocalDateTime breakEnd = LocalDateTime.of(workDate, breakPeriodDto.getEnd());
+
+            if (breakStart.isAfter(slotEnd) || breakStart.isEqual(slotEnd))
+                break;
+
+            if (currentStart.isBefore(breakStart))
+                availableSlots.add(new AvailableSlotForBooking(currentStart, breakStart));
+
+            if (currentStart.isBefore(breakEnd))
+                currentStart = breakEnd;
+        }
+
+        if (currentStart.isBefore(slotEnd)) {
+            availableSlots.add(new AvailableSlotForBooking(currentStart, slotEnd));
+        }
+        return availableSlots;
     }
 }

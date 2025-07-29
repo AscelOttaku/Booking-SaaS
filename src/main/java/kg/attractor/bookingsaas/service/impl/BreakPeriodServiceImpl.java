@@ -2,6 +2,7 @@ package kg.attractor.bookingsaas.service.impl;
 
 import kg.attractor.bookingsaas.dto.BreakPeriodDto;
 import kg.attractor.bookingsaas.dto.mapper.BreakPeriodMapper;
+import kg.attractor.bookingsaas.models.BreakPeriod;
 import kg.attractor.bookingsaas.repository.BreakPeriodRepository;
 import kg.attractor.bookingsaas.service.BreakPeriodService;
 import kg.attractor.bookingsaas.service.BreakValidatorService;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +37,7 @@ public class BreakPeriodServiceImpl implements BreakPeriodService, BreakValidato
     public List<BreakPeriodDto> findBreakPeriodByScheduleId(Long scheduleId) {
         return breakPeriodRepository.findByScheduleId(scheduleId)
                 .stream()
+                .sorted(Comparator.comparing(BreakPeriod::getStart))
                 .map(breakPeriodMapper::toDto)
                 .toList();
     }
