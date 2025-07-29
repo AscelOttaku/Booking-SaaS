@@ -90,12 +90,12 @@ Built as a REST API using Spring Boot, JWT, validation, migrations, and unified 
 ---
 
 ## 🛠 Technologies
-- Java 17
+- Java 21
 - Spring Boot
 - Spring Security + JWT
 - PostgreSQL
 - Maven
-- Liquibase
+- Flyway
 - Swagger/OpenAPI
 - Email services (e.g., SMTP)
 
