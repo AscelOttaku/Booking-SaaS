@@ -41,4 +41,4 @@ spring:
     secret_key: some-long-secret-string-at-least-64-chars-1234567890abcdef1234567890abcdef
 
 server:
-  port: ${PORT:8080}
+  port: ${PORT:8081}
