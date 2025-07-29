@@ -1,96 +1,95 @@
 # 📆 Service Booking Platform
 
-## 📌 Описание
-Многофункциональное Java-приложение для онлайн-бронирования услуг. Поддерживает две основные роли:
-- 👨‍💻 **Клиент (CLIENT)** — пользователь, который заходит на сайт, просматривает компании и бронирует услуги
-- 🧑‍💼 **Владелец бизнеса (BUSINESS_OWNER)** — управляет своим бизнесом, услугами, расписанием и клиентами
+## 📌 Description
+A multifunctional Java application for online service booking. Supports two main roles:
+- 👨‍💻 **Client (CLIENT)** — users who browse businesses and book services
+- 🧑‍💼 **Business Owner (BUSINESS_OWNER)** — manages their business, services, schedule, and clients
 
-Приложение построено на архитектуре REST API с использованием Spring Boot, JWT, валидации, миграций и единой структурой ошибок.
-
----
-
-## 🔐 Аутентификация
-| Метод         | Endpoint         | Описание                              |
-|---------------|------------------|----------------------------------------|
-| `POST`        | `/auth/register` | Регистрация (роль: CLIENT или BUSINESS_OWNER) |
-| `POST`        | `/auth/login`    | Авторизация, JWT выдача               |
-
-- Хэширование пароля
-- Авторизация через JWT (в заголовке `Authorization: Bearer ...`)
+Built as a REST API using Spring Boot, JWT, validation, migrations, and unified error structure.
 
 ---
 
-## 👨‍💻 Клиентская зона (CLIENT)
+## 🔐 Authentication
+| Method  | Endpoint              | Description                                         |
+|---------|-----------------------|-----------------------------------------------------|
+| POST    | `/api/auth/sign-up`   | Register (role: CLIENT or BUSINESS_OWNER)           |
+| POST    | `/api/auth/sign-in`   | Login, JWT issuance                                 |
 
-### 🌐 Публичный доступ
-| Метод         | Endpoint                       | Описание                           |
-|---------------|--------------------------------|-------------------------------------|
-| `GET`         | `/businesses`                  | Список бизнесов (поиск по имени, городу, slug) |
-| `GET`         | `/businesses/{slug}/services`  | Список услуг по бизнесу           |
-| `GET`         | `/businesses/{slug}/schedule`  | Расписание доступных записей      |
-
-### 📝 Бронирование
-| Метод         | Endpoint        | Описание                             |
-|---------------|-----------------|--------------------------------------|
-| `POST`        | `/bookings`     | Создание бронирования (валидация: минимум за 24 ч) |
-
-### ⚙️ Управление бронированиями (опционально)
-| Метод         | Endpoint             | Описание                             |
-|---------------|----------------------|--------------------------------------|
-| `PUT`         | `/bookings/{id}`     | Изменение бронирования               |
-| `DELETE`      | `/bookings/{id}`     | Отмена бронирования (если не поздно) |
-
-### 📩 Уведомления
-- Интеграция email-уведомлений при создании / отмене брони
+- Password hashing
+- JWT authorization via `Authorization: Bearer ...` header
 
 ---
 
-## 🧑‍💼 Панель владельца (BUSINESS_OWNER)
+## 👨‍💻 Client Area (CLIENT)
 
-### 🏢 Управление бизнесом
-| Метод         | Endpoint         | Описание                        |
-|---------------|------------------|----------------------------------|
-| `POST`        | `/businesses`    | Создание бизнеса (генерация slug, привязка к user_id) |
+### 🌐 Public Access
+| Method  | Endpoint                                 | Description                                   |
+|---------|------------------------------------------|-----------------------------------------------|
+| GET     | `/api/businesses`                        | List businesses (search by name, city, slug)  |
+| GET     | `/api/businesses/{slug}/services`        | List services for a business                  |
+| GET     | `/api/businesses/{slug}/schedule`        | Available booking schedule for a business     |
 
-### 💇 Управление услугами
-| Метод         | Endpoint                          | Описание                  |
-|---------------|-----------------------------------|----------------------------|
-| `POST`        | `/businesses/{id}/services`       | Добавление услуги         |
-| `PUT`         | `/services/{id}`                  | Редактирование услуги     |
-| `DELETE`      | `/services/{id}`                  | Удаление услуги           |
+### 📝 Booking
+| Method  | Endpoint         | Description                                         |
+|---------|------------------|-----------------------------------------------------|
+| POST    | `/api/booked/`  | Create a booking (validation: at least 24h ahead)   |
 
-### 📅 Настройка расписания
-| Метод         | Endpoint                    | Описание                                |
-|---------------|-----------------------------|------------------------------------------|
-| `POST`        | `/businesses/{id}/schedule` | Установка расписания (поддержка выходных, праздников) |
+### ⚙️ Manage Bookings (optional)
+| Method  | Endpoint                | Description                                     |
+|---------|-------------------------|-------------------------------------------------|
+| PUT     | `/api/booked/{id}`    | Update a booking                                |
+| DELETE  | `/api/booked/{id}`    | Cancel a booking (if not too late)              |
 
-### 📊 Управление бронированиями
-| Метод         | Endpoint             | Описание                          |
-|---------------|----------------------|-----------------------------------|
-| `GET`         | `/owner/bookings`    | Просмотр всех бронирований        |
-|               |                      | Фильтрация по дате                |
-
-### 👥 Работа с клиентами
-| Метод         | Endpoint                        | Описание                         |
-|---------------|----------------------------------|----------------------------------|
-| `GET`         | `/owner/clients`                | Получить список клиентов         |
-| `GET`         | `/owner/clients/{id}/history`   | История бронирований клиента     |
+### 📩 Notifications
+- Email notifications on booking creation/cancellation
 
 ---
 
-## ⚙️ Технические детали
+## 🧑‍💼 Owner Panel (BUSINESS_OWNER)
 
-| Компонент    | Описание                                                                 |
-|--------------|--------------------------------------------------------------------------|
-| JWT          | Авторизация для обеих ролей через `Authorization: Bearer <token>`       |
-| DTO          | DTO-объекты хранятся в `shared/dto/`, спецификации — через Swagger      |
-| Миграции     | Используется единый файл миграций (например, Liquibase), согласованные FK |
-| База данных  | Общая база, единые правила именования таблиц и внешних ключей           |
-| Ошибки       | Единый формат ошибок: `400`, `401`, `403`, `409`, `422` (с понятным JSON) |
+### 🏢 Business Management
+| Method  | Endpoint             | Description                                     |
+|---------|----------------------|-------------------------------------------------|
+| POST    | `/api/businesses`    | Create a business (slug generation, user_id link)|
+
+### 💇 Service Management
+| Method  | Endpoint                              | Description                   |
+|---------|---------------------------------------|-------------------------------|
+| POST    | `/api/businesses/{id}/services`       | Add a service                 |
+| PUT     | `/api/services/{id}`                  | Edit a service                |
+| DELETE  | `/api/services/{id}`                  | Delete a service              |
+
+### 📅 Schedule Management
+| Method  | Endpoint                        | Description                                 |
+|---------|---------------------------------|---------------------------------------------|
+| POST    | `/api/businesses/{id}/schedule` | Set schedule (support weekends, holidays)   |
+
+### 📊 Booking Management
+| Method  | Endpoint                | Description                                 |
+|---------|-------------------------|---------------------------------------------|
+| GET     | `/api/owner/bookings`   | View all bookings (filter by date)          |
+
+### 👥 Client Management
+| Method  | Endpoint                                 | Description                                 |
+|---------|------------------------------------------|---------------------------------------------|
+| GET     | `/api/owner/clients`                     | Get client list                             |
+| GET     | `/api/owner/clients/{id}/history`        | Get client booking history                  |
 
 ---
 
-## 🛠 Технологии
+## ⚙️ Technical Details
+
+| Component   | Description                                                        |
+|-------------|--------------------------------------------------------------------|
+| JWT         | Authorization for both roles via `Authorization: Bearer <token>`   |
+| DTO         | DTOs in `shared/dto/`, specs via Swagger                           |
+| Migrations  | Single migration file (e.g., Liquibase), consistent FKs            |
+| Database    | Shared DB, unified table and FK naming                             |
+| Errors      | Unified error format: `400`, `401`, `403`, `409`, `422` (JSON)     |
+
+---
+
+## 🛠 Technologies
 - Java 17
 - Spring Boot
 - Spring Security + JWT
@@ -98,20 +97,20 @@
 - Maven
 - Liquibase
 - Swagger/OpenAPI
-- Email-сервисы (например, SMTP)
+- Email services (e.g., SMTP)
 
 ---
 
-## 🧪 Примеры запуска (локально)
+## 🧪 Local Launch Example
 
 ```bash
-# Клонировать репозиторий
+# Clone the repository
 git clone https://github.com/your-username/your-repo.git
 
-# Перейти в папку проекта
+# Go to project folder
 cd your-repo
 
-# Настроить application.yml (БД, email)
+# Configure application.yml (DB, email)
 
-# Запуск проекта
+# Run the project
 ./mvnw spring-boot:run
