@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -180,7 +181,8 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
         var schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new NoSuchElementException("Schedule with ID " + scheduleId + " does not exist"));
 
-        LocalDate workDate = LocalDate.parse(date);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate workDate = LocalDate.parse(date, dateTimeFormatter);
 
         // Validate for holidays date
         boolean isHoliday = holidaysService.getHolidaysByYearFromDb(workDate.getYear())

@@ -2,11 +2,8 @@ package kg.attractor.bookingsaas.service.impl;
 
 import kg.attractor.bookingsaas.enums.RoleEnum;
 import kg.attractor.bookingsaas.models.User;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

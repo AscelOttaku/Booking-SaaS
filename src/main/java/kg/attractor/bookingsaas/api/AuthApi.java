@@ -9,10 +9,8 @@ import kg.attractor.bookingsaas.dto.auth.SignInRequest;
 import kg.attractor.bookingsaas.dto.auth.SignUpRequest;
 import kg.attractor.bookingsaas.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -22,6 +20,7 @@ public class AuthApi {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/sign-up")
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(
             summary = "Регистрация нового пользователя",
             description = "Регистрация нового пользователя с предоставленными данными регистрации, " +
@@ -35,6 +34,7 @@ public class AuthApi {
     }
 
     @PostMapping("/sign-in")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(
             summary = "Аутентификация пользователя",
             description = "Аунтифицирует пользователя и возвращает ответ с информацией об аутентификации," +

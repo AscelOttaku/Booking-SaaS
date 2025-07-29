@@ -60,7 +60,6 @@ public class ErrorServiceImpl implements ErrorService {
                 .build());
     }
 
-
     @Override
     public Map<String, Object> handleMethodValidationException(
             HandlerMethodValidationException ex, HttpServletRequest request

@@ -2,7 +2,6 @@ package kg.attractor.bookingsaas.service.impl;
 
 import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.mapper.impl.BusinessMapper;
-import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
 import kg.attractor.bookingsaas.models.*;
 import kg.attractor.bookingsaas.repository.BusinessRepository;
 import kg.attractor.bookingsaas.service.AuthorizedUserService;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;

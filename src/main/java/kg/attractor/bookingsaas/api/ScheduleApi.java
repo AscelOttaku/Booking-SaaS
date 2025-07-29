@@ -1,5 +1,6 @@
 package kg.attractor.bookingsaas.api;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import kg.attractor.bookingsaas.dto.DailyScheduleDto;
 import kg.attractor.bookingsaas.dto.ScheduleAvailableSlots;
 import kg.attractor.bookingsaas.dto.WeeklyScheduleDto;

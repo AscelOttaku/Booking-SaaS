@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.lang.IllegalArgumentException;
+import java.time.format.DateTimeParseException;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice
@@ -41,6 +42,16 @@ public class AppExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler({DateTimeParseException.class, InvalidPasswordException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionResponse handleBadRequest(RuntimeException e) {
+        return ExceptionResponse.builder()
+                .exceptionClassName(e.getClass().getSimpleName())
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(e.getMessage())
+                .build();
+    }
+
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleNotFoundException(NotFoundException e) {
         ExceptionResponse response = ExceptionResponse.builder()
@@ -59,16 +70,6 @@ public class AppExceptionHandler {
                 .message(e.getMessage())
                 .build();
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(InvalidPasswordException.class)
-    public ResponseEntity<ExceptionResponse> handleInvalidPasswordException(InvalidPasswordException e) {
-        ExceptionResponse response = ExceptionResponse.builder()
-                .httpStatus(HttpStatus.BAD_REQUEST)
-                .exceptionClassName(e.getClass().getSimpleName())
-                .message(e.getMessage())
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({IllegalArgumentException.class, NoSuchElementException.class})
