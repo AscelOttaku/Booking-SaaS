@@ -1,5 +1,6 @@
 package kg.attractor.bookingsaas.repository;
 
+import jakarta.validation.constraints.NotNull;
 import kg.attractor.bookingsaas.models.Service;
 import kg.attractor.bookingsaas.projection.UserBookServiceProjection;
 import org.springframework.data.domain.Page;
@@ -42,4 +43,6 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
     Optional<Service> findMostPopularServiceByBusinessTitle(String businessTitle);
 
     List<Service> findServicesByBusinessTitle(String businessTitle);
+
+    int countByBusinessId(Long businessId);
 }

@@ -3,10 +3,16 @@ package kg.attractor.bookingsaas.dto.mapper.impl;
 import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.mapper.OutputUserMapper;
 import kg.attractor.bookingsaas.models.Business;
+import kg.attractor.bookingsaas.models.Service;
 import kg.attractor.bookingsaas.projection.BusinessInfo;
+import kg.attractor.bookingsaas.util.Util;
 import org.springframework.stereotype.Component;
 
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static kg.attractor.bookingsaas.util.Util.distinctByKey;
 
 @Component
 public class BusinessMapper {
@@ -87,5 +93,24 @@ public class BusinessMapper {
         }
 
         return entity;
+    }
+
+    public void updateEntityFromDto(BusinessDto businessDto, Business existingBusiness) {
+        if (businessDto == null || existingBusiness == null) {
+            return;
+        }
+        existingBusiness.setTitle(businessDto.getTitle());
+        existingBusiness.setDescription(businessDto.getDescription());
+
+        Function<Service, String> functionalInterface = service ->
+                service.getServiceName() + " " + service.getPrice() + " " + service.getDurationInMinutes();
+
+        var mergedUniqueService = Stream.concat(
+                existingBusiness.getServices().stream(),
+                businessDto.getServices().stream().map(serviceMapper::mapToModel)
+        )
+                .filter(distinctByKey(functionalInterface))
+                .toList();
+        existingBusiness.setServices(mergedUniqueService);
     }
 }

@@ -26,7 +26,7 @@ public class BusinessDto {
     @NotNull(groups = OnUpdate.class, message = "id must not be null on update")
     private Long id;
 
-    @NotNull(groups = OnCreate.class, message = "user must not be null")
+    @Null(groups = {OnCreate.class, OnUpdate.class}, message = "user must not be null")
     private OutputUserDto user;
 
     @NotBlank(groups = OnCreate.class, message = "title must not be blank")

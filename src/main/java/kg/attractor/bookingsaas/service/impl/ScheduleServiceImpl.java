@@ -29,10 +29,9 @@ import java.util.stream.Collectors;
 public class ScheduleServiceImpl implements ScheduleService, ScheduleValidator {
     private final ScheduleRepository scheduleRepository;
     private final ScheduleMapper scheduleMapper;
-    private final ServiceValidator serviceValidator;
+    private final ServiceValidatorImpl serviceValidator;
     private final ServiceDurationProvider serviceDurationProvider;
     private final HolidaysService holidaysService;
-    private final BreakValidatorService breakValidatorService;
     private final BreakPeriodService breakPeriodService;
 
     @Override

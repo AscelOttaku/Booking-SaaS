@@ -25,17 +25,21 @@ import java.util.stream.Collectors;
 @Slf4j
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
-public class ServiceServiceImpl implements ServiceService, ServiceValidator, ServiceDurationProvider {
+public class ServiceServiceImpl implements ServiceService, ServiceDurationProvider {
     private final ServiceRepository serviceRepository;
     private final BusinessValidator businessValidator;
     private final ServiceMapper serviceMapper;
     private final PageHolderWrapper pageHolderWrapper;
-    private final AuthorizedUserService authorizedUserService;
     private final BookMapper bookMapper;
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     @Override
     public ServiceDto createService(ServiceDto dto) {
+        int servicesQuantityForBusiness = serviceRepository.countByBusinessId(dto.getBusinessId());
+        if (servicesQuantityForBusiness >= 15) {
+            throw new IllegalArgumentException("You cannot create more than 15 services for a business");
+        }
+
         businessValidator.checkIsBusinessBelongsToAuthUser(dto.getBusinessId());
         Service service = serviceMapper.mapToModel(dto);
         return serviceMapper.mapToDto(serviceRepository.save(service));
@@ -105,22 +109,6 @@ public class ServiceServiceImpl implements ServiceService, ServiceValidator, Ser
         return serviceRepository.findById(serviceId)
                 .map(serviceMapper::mapToDto)
                 .orElseThrow(() -> new NoSuchElementException("Service not found with id: " + serviceId));
-    }
-
-    @Override
-    public void checkIfServiceExistsById(Long serviceId) {
-        if (!serviceRepository.existsById(serviceId))
-            throw new NoSuchElementException("Service not found with id: " + serviceId);
-    }
-
-    @Override
-    public void checkServiceBelongsToAuthUser(Long serviceId) {
-        var service = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new NoSuchElementException("Service not found with id: " + serviceId));
-
-        Long businessOwnerId = service.getBusiness().getUser().getId();
-        if (!Objects.equals(businessOwnerId, authorizedUserService.getAuthorizedUserId()))
-            throw new IllegalArgumentException("You do not have permission to access this service");
     }
 
     @Override

@@ -75,7 +75,7 @@ public class Business {
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT now()")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "business", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "business", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private List<Service> services = new ArrayList<>();
 
     @PrePersist

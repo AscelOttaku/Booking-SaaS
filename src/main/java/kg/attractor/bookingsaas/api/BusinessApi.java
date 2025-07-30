@@ -8,6 +8,7 @@ import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.service.BusinessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,5 +50,27 @@ public class BusinessApi {
             @PathVariable String businessTitle
     ) {
         return businessService.findMostPopularFiveBusinessesByBusinessTitleContatining(businessTitle);
+    }
+
+    @PostMapping
+    @Operation(
+            summary = "Create a new business",
+            description = "Creates a new business with the provided details"
+    )
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('BUSINESS_OWNER')")
+    public BusinessDto createBusiness(@RequestBody BusinessDto businessDto) {
+        return businessService.createBusiness(businessDto);
+    }
+
+    @PutMapping
+    @Operation(
+            summary = "Update an existing business",
+            description = "Updates the details of an existing business"
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('BUSINESS_OWNER')")
+    public BusinessDto updateBusiness(@RequestBody BusinessDto businessDto) {
+        return businessService.updateBusiness(businessDto);
     }
 }

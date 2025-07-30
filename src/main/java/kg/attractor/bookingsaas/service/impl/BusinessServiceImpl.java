@@ -5,14 +5,19 @@ import kg.attractor.bookingsaas.dto.PageHolder;
 import kg.attractor.bookingsaas.dto.mapper.impl.BusinessMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.PageHolderWrapper;
 import kg.attractor.bookingsaas.models.Business;
+import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.repository.BusinessRepository;
 import kg.attractor.bookingsaas.service.AuthorizedUserService;
 import kg.attractor.bookingsaas.service.BusinessService;
 import kg.attractor.bookingsaas.service.BusinessValidator;
+import kg.attractor.bookingsaas.service.ServiceValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.*;
@@ -27,6 +32,7 @@ public class BusinessServiceImpl implements BusinessService, BusinessValidator {
     private final BusinessMapper businessMapper;
     private final PageHolderWrapper pageHolderWrapper;
     private final AuthorizedUserService authorizedUserService;
+    private final ServiceValidator serviceValidator;
 
     @Override
     public void checkIsBusinessBelongsToAuthUser(Long businessId) {
@@ -112,5 +118,32 @@ public class BusinessServiceImpl implements BusinessService, BusinessValidator {
                 .limit(5)
                 .map(entry -> businessMapper.toDto(entry.getKey()))
                 .toList();
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    @Override
+    public BusinessDto createBusiness(BusinessDto businessDto) {
+        Business business = businessMapper.toEntity(businessDto);
+        business.setUser((User) authorizedUserService.getAuthUser());
+
+        var services = business.getServices();
+        serviceValidator.validateServices(services);
+        services.forEach(service -> service.setBusiness(business));
+        return businessMapper.toDto(businessRepository.save(business));
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    @Override
+    public BusinessDto updateBusiness(BusinessDto businessDto) {
+        checkIsBusinessBelongsToAuthUser(businessDto.getId());
+
+        Business existingBusiness = businessRepository.findById(businessDto.getId())
+                .orElseThrow(() -> new NoSuchElementException("Business not found by ID: " + businessDto.getId()));
+
+        businessMapper.updateEntityFromDto(businessDto, existingBusiness);
+        existingBusiness.setUser((User) authorizedUserService.getAuthUser());
+        serviceValidator.validateServices(existingBusiness.getServices());
+        existingBusiness.getServices().forEach(service -> service.setBusiness(existingBusiness));
+        return businessMapper.toDto(businessRepository.save(existingBusiness));
     }
 }
