@@ -1,5 +1,6 @@
 package kg.attractor.bookingsaas.util;
 
+import kg.attractor.bookingsaas.dto.ServiceDto;
 import kg.attractor.bookingsaas.enums.BookStatus;
 import kg.attractor.bookingsaas.models.*;
 import lombok.experimental.UtilityClass;
@@ -7,6 +8,8 @@ import lombok.experimental.UtilityClass;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @UtilityClass
 public class TestEntityFactory {
@@ -61,5 +64,20 @@ public class TestEntityFactory {
         book.setUser(user);
         book.setStatus(BookStatus.ACCEPTED);
         return book;
+    }
+
+    public static List<ServiceDto> createServiceDtos1And2() {
+        ServiceDto serviceDto1 = ServiceDto.builder()
+                .serviceName("Service 1")
+                .durationInMinutes(15)
+                .price(BigDecimal.valueOf(100.0))
+                .build();
+
+        ServiceDto serviceDto2 = ServiceDto.builder()
+                .serviceName("Service 2")
+                .durationInMinutes(45)
+                .price(BigDecimal.valueOf(300.0))
+                .build();
+        return new ArrayList<>(List.of(serviceDto1, serviceDto2));
     }
 }

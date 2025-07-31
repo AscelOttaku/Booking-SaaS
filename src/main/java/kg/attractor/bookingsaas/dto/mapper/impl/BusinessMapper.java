@@ -103,7 +103,7 @@ public class BusinessMapper {
         existingBusiness.setDescription(businessDto.getDescription());
 
         Function<Service, String> functionalInterface = service ->
-                service.getServiceName() + " " + service.getPrice() + " " + service.getDurationInMinutes();
+                service.getServiceName() + " " + service.getPrice();
 
         var mergedUniqueService = Stream.concat(
                 existingBusiness.getServices().stream(),

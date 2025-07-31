@@ -1,10 +1,15 @@
 package kg.attractor.bookingsaas.service.impl;
 
 import kg.attractor.bookingsaas.dto.BusinessDto;
+import kg.attractor.bookingsaas.dto.ServiceDto;
+import kg.attractor.bookingsaas.dto.mapper.OutputUserMapperImpl;
 import kg.attractor.bookingsaas.dto.mapper.impl.BusinessMapper;
+import kg.attractor.bookingsaas.dto.mapper.impl.ServiceMapper;
+import kg.attractor.bookingsaas.enums.RoleEnum;
 import kg.attractor.bookingsaas.models.*;
 import kg.attractor.bookingsaas.repository.BusinessRepository;
 import kg.attractor.bookingsaas.service.AuthorizedUserService;
+import kg.attractor.bookingsaas.service.ServiceValidator;
 import kg.attractor.bookingsaas.util.TestEntityFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -14,8 +19,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -29,8 +36,11 @@ class BusinessServiceImplTest {
     @Mock
     private AuthorizedUserService authorizedUserService;
 
-    @Mock
-    private BusinessMapper businessMapper;
+    @Spy
+    private BusinessMapper businessMapper = new BusinessMapper(new ServiceMapper(), new OutputUserMapperImpl());
+
+    @Spy
+    private ServiceValidator serviceValidator;
 
     @InjectMocks
     private BusinessServiceImpl businessServiceImpl;
@@ -40,8 +50,13 @@ class BusinessServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        Role role = new Role();
+        role.setId(1L);
+        role.setRoleName(RoleEnum.CLIENT);
+
         user = new User();
         user.setId(1L);
+        user.setRole(role);
 
         business = new Business();
         business.setId(1L);
@@ -51,7 +66,7 @@ class BusinessServiceImplTest {
 
     @AfterEach
     void checkMocks() {
-        Mockito.verifyNoMoreInteractions(businessRepository, authorizedUserService, businessMapper);
+        Mockito.verifyNoMoreInteractions(businessRepository, authorizedUserService, businessMapper, serviceValidator);
     }
 
     @Test
@@ -168,15 +183,6 @@ class BusinessServiceImplTest {
         Mockito.when(businessRepository.findByTitleContaining("Business"))
                 .thenReturn(List.of(business1, business2));
 
-        Mockito.when(businessMapper.toDto(Mockito.any(Business.class)))
-                .thenAnswer(invocation -> {
-                    Business business = invocation.getArgument(0);
-                    return BusinessDto.builder()
-                            .id(business.getId())
-                            .title(business.getTitle())
-                            .build();
-                });
-
         // When
         List<BusinessDto> popularBusinesses = businessServiceImpl.findMostPopularFiveBusinessesByBusinessTitleContatining("Business");
 
@@ -191,5 +197,106 @@ class BusinessServiceImplTest {
 
         Mockito.verify(businessRepository).findByTitleContaining("Business");
         Mockito.verify(businessMapper, Mockito.times(2)).toDto(Mockito.any(Business.class));
+    }
+
+    @Test
+    void testBusinessCreat() {
+        // Given
+        BusinessDto business1 = BusinessDto.builder()
+                .title("Business One")
+                .description("Description for Business One")
+                .services(TestEntityFactory.createServiceDtos1And2())
+                .build();
+
+        Mockito.when(authorizedUserService.getAuthUser())
+                .thenReturn(user);
+        Mockito.when(businessRepository.save(Mockito.any(Business.class)))
+                .thenAnswer(invocation -> {
+                    Business savedBusiness = invocation.getArgument(0);
+                    savedBusiness.setId(1L);
+                    return savedBusiness;
+                });
+
+        // When
+        BusinessDto createdBusiness1 = businessServiceImpl.createBusiness(business1);
+
+        // Then
+        Assertions.assertThat(createdBusiness1)
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("title", "Business One")
+                .hasFieldOrPropertyWithValue("description", "Description for Business One");
+
+        Assertions.assertThat(createdBusiness1.getServices())
+                .isNotEmpty()
+                .hasSize(2)
+                .extracting("serviceName")
+                .contains("Service 1", "Service 2");
+
+        Mockito.verify(businessMapper).toEntity(business1);
+        Mockito.verify(authorizedUserService).getAuthUser();
+        Mockito.verify(businessRepository).save(Mockito.any(Business.class));
+        Mockito.verify(businessMapper).toDto(Mockito.any(Business.class));
+        Mockito.verify(serviceValidator).validateServices(Mockito.anyList());
+    }
+
+    @Test
+    void testUpdateBusiness() {
+        // Given
+        ServiceDto serviceDto1 = ServiceDto.builder()
+                .serviceName("Service 1")
+                .durationInMinutes(30)
+                .price(BigDecimal.valueOf(100.0))
+                .build();
+
+        ServiceDto serviceDto3 = ServiceDto.builder()
+                .serviceName("Service 3")
+                .durationInMinutes(60)
+                .price(BigDecimal.valueOf(200.0))
+                .build();
+
+        List<ServiceDto> serviceDtos = TestEntityFactory.createServiceDtos1And2();
+        serviceDtos.add(serviceDto1);
+        serviceDtos.add(serviceDto3);
+
+        BusinessDto businessDto = BusinessDto.builder()
+                .id(1L)
+                .title("Updated Business")
+                .description("Updated Description")
+                .services(serviceDtos)
+                .build();
+
+        Business business1 = businessMapper.toEntity(businessDto);
+        business1.setUser(user);
+
+        Mockito.when(businessRepository.findById(businessDto.getId()))
+                .thenReturn(Optional.of(business1));
+        Mockito.when(authorizedUserService.getAuthorizedUserId()).thenReturn(user.getId());
+        Mockito.when(authorizedUserService.getAuthUser()).thenReturn(user);
+        Mockito.when(businessRepository.save(Mockito.any(Business.class)))
+                .thenAnswer(invocation -> invocation.<Business>getArgument(0));
+
+        // When
+        BusinessDto updatedBusiness = businessServiceImpl.updateBusiness(businessDto);
+
+        // Then
+        Assertions.assertThat(updatedBusiness)
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("title", "Updated Business")
+                .hasFieldOrPropertyWithValue("description", "Updated Description");
+
+        Assertions.assertThat(updatedBusiness.getServices())
+                .isNotEmpty()
+                .hasSize(3)
+                .extracting("serviceName")
+                .contains("Service 1", "Service 2", "Service 3");
+
+        Mockito.verify(businessMapper).toEntity(businessDto);
+        Mockito.verify(businessRepository, Mockito.times(2)).findById(businessDto.getId());
+        Mockito.verify(businessMapper).updateEntityFromDto(Mockito.any(BusinessDto.class), Mockito.any(Business.class));
+        Mockito.verify(authorizedUserService).getAuthorizedUserId();
+        Mockito.verify(authorizedUserService).getAuthUser();
+        Mockito.verify(serviceValidator).validateServices(Mockito.anyList());
+        Mockito.verify(businessRepository).save(Mockito.any(Business.class));
+        Mockito.verify(businessMapper).toDto(Mockito.any(Business.class));
     }
 }

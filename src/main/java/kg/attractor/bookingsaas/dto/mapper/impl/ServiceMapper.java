@@ -6,6 +6,8 @@ import kg.attractor.bookingsaas.projection.ServiceInfo;
 import kg.attractor.bookingsaas.projection.UserBusinessServiceProjection;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ServiceMapper {
 
@@ -58,5 +60,11 @@ public class ServiceMapper {
         if (dto.getDurationInMinutes() != null) {
             existingService.setDurationInMinutes(dto.getDurationInMinutes());
         }
+    }
+
+    public List<kg.attractor.bookingsaas.models.Service> mapToEntities(List<ServiceDto> dtos) {
+        return dtos.stream()
+                .map(this::mapToModel)
+                .toList();
     }
 }

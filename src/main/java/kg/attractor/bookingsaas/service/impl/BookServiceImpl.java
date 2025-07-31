@@ -57,7 +57,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public PageHolder<BookDto> findAllBooksByBusinessTitle(String businessTitle, int page, int size) {
         Assert.notNull(businessTitle, "businessTitle must not be null");
-        Pageable pageable = PageRequest.of(page, size, Sort.by("finishedAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("startedAt").descending());
         Page<BookDto> bookPages = bookRepository.findAllBooksByBusinessTitle(businessTitle, pageable)
                 .map(bookMapper::toDto);
         return pageHolderWrapper.wrapPageHolder(bookPages);
@@ -65,7 +65,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public PageHolder<BookInfoDto> findAlUsersBookedHistory(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("finishedAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("startedAt").descending());
         Page<BookInfoDto> bookPages = bookRepository.findAllUsersBookedHistory(pageable);
         return pageHolderWrapper.wrapPageHolder(bookPages);
     }
