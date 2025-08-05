@@ -1,10 +1,11 @@
-package kg.attractor.bookingsaas.repository;
+package kg.attractor.bookingsaas.module.repository;
 
 import kg.attractor.bookingsaas.enums.BookStatus;
 import kg.attractor.bookingsaas.enums.RoleEnum;
 import kg.attractor.bookingsaas.models.*;
 import kg.attractor.bookingsaas.projection.UserBookServiceProjection;
 import kg.attractor.bookingsaas.projection.UserInfo;
+import kg.attractor.bookingsaas.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

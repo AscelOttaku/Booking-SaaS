@@ -37,8 +37,28 @@ spring:
           starttls:
             enable: true
 
+  #Redis configuration:
+  cache:
+    type: redis
+    cache-names: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   jwt:
     secret_key: some-long-secret-string-at-least-64-chars-1234567890abcdef1234567890abcdef
 
 server:
   port: ${PORT:8081}
+
+logging:
+  level:
+    org:
+      springframework:
+        security: INFO
+        web:
+          servlet:
+            DispatcherServlet: INFO
+  file:
+    path: logs

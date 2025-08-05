@@ -1,9 +1,10 @@
-package kg.attractor.bookingsaas.service.impl;
+package kg.attractor.bookingsaas.module.service.impl;
 
 import kg.attractor.bookingsaas.dto.HolidayDto;
 import kg.attractor.bookingsaas.dto.mapper.HolidayMapperImpl;
 import kg.attractor.bookingsaas.models.Holiday;
 import kg.attractor.bookingsaas.repository.HolidayRepository;
+import kg.attractor.bookingsaas.service.impl.HolidaysServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

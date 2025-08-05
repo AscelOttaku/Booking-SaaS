@@ -28,8 +28,8 @@ public class BusinessReview {
     @Column(name = "review_text")
     private String reviewText;
 
-    @Column(columnDefinition = "numeric")
-    private Double rating;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal rating;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

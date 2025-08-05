@@ -1,7 +1,8 @@
-package kg.attractor.bookingsaas.service.impl;
+package kg.attractor.bookingsaas.module.service.impl;
 
 import jakarta.mail.internet.MimeMessage;
 import kg.attractor.bookingsaas.service.EmailService;
+import kg.attractor.bookingsaas.service.impl.EmailServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

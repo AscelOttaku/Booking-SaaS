@@ -1,6 +1,7 @@
-package kg.attractor.bookingsaas.repository;
+package kg.attractor.bookingsaas.module.repository;
 
 import kg.attractor.bookingsaas.models.Holiday;
+import kg.attractor.bookingsaas.repository.HolidayRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

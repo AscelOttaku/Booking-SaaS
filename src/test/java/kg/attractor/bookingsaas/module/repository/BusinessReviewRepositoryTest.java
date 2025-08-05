@@ -1,8 +1,9 @@
-package kg.attractor.bookingsaas.repository;
+package kg.attractor.bookingsaas.module.repository;
 
 import kg.attractor.bookingsaas.dto.BusinessReviewDto;
 import kg.attractor.bookingsaas.enums.RoleEnum;
 import kg.attractor.bookingsaas.models.*;
+import kg.attractor.bookingsaas.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,12 +14,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.IntStream;
 

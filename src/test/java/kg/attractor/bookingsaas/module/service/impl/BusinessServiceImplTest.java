@@ -1,4 +1,4 @@
-package kg.attractor.bookingsaas.service.impl;
+package kg.attractor.bookingsaas.module.service.impl;
 
 import kg.attractor.bookingsaas.dto.BusinessDto;
 import kg.attractor.bookingsaas.dto.ServiceDto;
@@ -10,6 +10,7 @@ import kg.attractor.bookingsaas.models.*;
 import kg.attractor.bookingsaas.repository.BusinessRepository;
 import kg.attractor.bookingsaas.service.AuthorizedUserService;
 import kg.attractor.bookingsaas.service.ServiceValidator;
+import kg.attractor.bookingsaas.service.impl.BusinessServiceImpl;
 import kg.attractor.bookingsaas.util.TestEntityFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;

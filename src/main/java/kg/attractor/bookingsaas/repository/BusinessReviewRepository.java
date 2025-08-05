@@ -13,7 +13,8 @@ public interface BusinessReviewRepository extends JpaRepository<BusinessReview, 
 
     @Query(value = "SELECT new kg.attractor.bookingsaas.dto.BusinessReviewDto(b.title, COUNT(br), AVG(br.rating)) " +
             "FROM BusinessReview br JOIN br.business b " +
-            "GROUP BY b.title ",
+            "GROUP BY b.title " +
+            "order by AVG(br.rating) DESC",
             countQuery = "SELECT COUNT(DISTINCT B.title) " +
                     "FROM Business B ")
     Page<BusinessReviewDto> findAllReviews(Pageable pageable);

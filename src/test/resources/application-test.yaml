@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:./db/booking-saas;AUTO_SERVER=TRUE
+    username: Kanybek
+    password: Kanybek12345
     driver-class-name: org.h2.Driver
-    username: Test
-    password: Test
 
   h2:
     console:
@@ -12,7 +12,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
     database-platform: org.hibernate.dialect.H2Dialect
 
   flyway:

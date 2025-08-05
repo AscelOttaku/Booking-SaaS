@@ -1,4 +1,4 @@
-package kg.attractor.bookingsaas.service.impl;
+package kg.attractor.bookingsaas.module.service.impl;
 
 import kg.attractor.bookingsaas.config.jwt.JwtService;
 import kg.attractor.bookingsaas.dto.auth.AuthenticationResponse;
@@ -12,6 +12,7 @@ import kg.attractor.bookingsaas.models.Role;
 import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.repository.RoleRepository;
 import kg.attractor.bookingsaas.repository.UserRepository;
+import kg.attractor.bookingsaas.service.impl.AuthenticationServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

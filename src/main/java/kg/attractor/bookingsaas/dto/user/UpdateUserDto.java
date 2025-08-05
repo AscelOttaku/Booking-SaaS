@@ -3,14 +3,16 @@ package kg.attractor.bookingsaas.dto.user;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UpdateUserDto extends UserDto {
 
     @Schema(description = "user id", example = "1")

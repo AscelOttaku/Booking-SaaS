@@ -4,7 +4,6 @@ import kg.attractor.bookingsaas.repository.ServiceRepository;
 import kg.attractor.bookingsaas.service.AuthorizedUserService;
 import kg.attractor.bookingsaas.service.ServiceValidator;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.internal.constraintvalidators.bv.number.bound.MaxValidatorForBigDecimal;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,13 +16,6 @@ public class ServiceValidatorImpl implements ServiceValidator {
     private static final int MAX_SERVICES_PER_BUSINESS = 15;
     private final ServiceRepository serviceRepository;
     private final AuthorizedUserService authorizedUserService;
-    private final MaxValidatorForBigDecimal maxValidatorForBigDecimal;
-
-    @Override
-    public void checkIfServiceExistsById(Long serviceId) {
-        if (!serviceRepository.existsById(serviceId))
-            throw new NoSuchElementException("Service not found with id: " + serviceId);
-    }
 
     @Override
     public void checkServiceBelongsToAuthUser(Long serviceId) {
