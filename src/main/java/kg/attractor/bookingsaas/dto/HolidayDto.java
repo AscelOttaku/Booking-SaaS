@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,7 +17,10 @@ import java.util.List;
 @Setter
 @Builder
 @UniqueHolidayName(message = "Holiday with this name already exists")
-public class HolidayDto {
+public class HolidayDto implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private Long id;
 
     @NotNull(message = "Date must not be null")

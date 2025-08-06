@@ -33,7 +33,7 @@ public class HolidaysServiceImpl implements HolidaysService {
     @Override
     public List<HolidayDto> getHolidaysByYearFromDb(int year) {
         List<HolidayDto> holidayDtoList = webClient.get()
-                .uri("/{year}/{countryCode}", year, COUNTRY_CODE)
+                .uri("/{year}/{countryCode}", year,  COUNTRY_CODE)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<HolidayDto>>() {
                 })

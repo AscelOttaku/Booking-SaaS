@@ -14,6 +14,7 @@ import kg.attractor.bookingsaas.models.User;
 import kg.attractor.bookingsaas.repository.BookRepository;
 import kg.attractor.bookingsaas.service.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
@@ -171,7 +173,9 @@ public class BookServiceImpl implements BookService {
         if (!Objects.equals(book.getUser().getId(), authUser.getId()))
             throw new IllegalArgumentException("You do not have permission to cancel this book");
 
-        int durationInMinutes = Duration.between(book.getStartedAt(), LocalDateTime.now()).toMinutesPart();
+        long durationInMinutes = Duration.between(LocalDateTime.now(), book.getStartedAt()).toMinutes();
+        log.info("Duration in minutes between book id: {}, startTime {}, and currentTime: {} is {}", bookId, book.getStartedAt(), LocalDateTime.now(), durationInMinutes);
+
         if (durationInMinutes < 30) {
             throw new IllegalArgumentException("You cannot cancel a booking less than 30 minutes before it starts.");
         }

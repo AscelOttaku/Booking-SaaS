@@ -1,7 +1,7 @@
 package kg.attractor.bookingsaas.service.impl;
 
 import kg.attractor.bookingsaas.dto.ServiceDto;
-import kg.attractor.bookingsaas.dto.UserBusinessKey;
+import kg.attractor.bookingsaas.dto.UserBusinessBooksKey;
 import kg.attractor.bookingsaas.dto.UserBusinessServiceBookDto;
 import kg.attractor.bookingsaas.dto.mapper.OutputUserMapper;
 import kg.attractor.bookingsaas.dto.mapper.impl.BookMapper;
@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserBusinessServiceBookServiceImpl implements UserBusinessServiceBookService {
     private final BusinessRepository businessRepository;
-    private final OutputUserMapper outputUserMapper;
     private final BusinessMapper businessMapper;
     private final ServiceMapper serviceMapper;
     private final BookMapper bookMapper;
@@ -46,9 +45,8 @@ public class UserBusinessServiceBookServiceImpl implements UserBusinessServiceBo
                 ));
     }
 
-    private UserBusinessKey mapToUserBusinessKey(UserBusinessServiceProjection projection) {
-        return UserBusinessKey.builder()
-                .userDto(outputUserMapper.mapToDto(projection.getUser()))
+    private UserBusinessBooksKey mapToUserBusinessKey(UserBusinessServiceProjection projection) {
+        return UserBusinessBooksKey.builder()
                 .businessDto(businessMapper.toDto(projection.getBusiness()))
                 .bookDtos(projection.getUser().getBooks() != null ?
                         projection.getUser().getBooks().stream()
@@ -58,10 +56,9 @@ public class UserBusinessServiceBookServiceImpl implements UserBusinessServiceBo
     }
 
     private List<UserBusinessServiceBookDto> mapToUserBusinessServiceBookDtos(
-            Map<UserBusinessKey, List<ServiceDto>> userServicesMap) {
+            Map<UserBusinessBooksKey, List<ServiceDto>> userServicesMap) {
         return userServicesMap.entrySet().stream()
                 .map(entry -> UserBusinessServiceBookDto.builder()
-                        .user(entry.getKey().getUserDto())
                         .businessDto(entry.getKey().getBusinessDto())
                         .services(entry.getValue())
                         .bookDtos(entry.getKey().getBookDtos())

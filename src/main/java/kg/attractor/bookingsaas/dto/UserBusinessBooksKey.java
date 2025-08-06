@@ -11,8 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class UserBusinessKey {
+public class UserBusinessBooksKey {
     private BusinessDto businessDto;
-    private OutputUserDto userDto;
     private List<BookDto> bookDtos;
 }

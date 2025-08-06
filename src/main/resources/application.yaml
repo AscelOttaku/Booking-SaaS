@@ -49,6 +49,25 @@ spring:
   jwt:
     secret_key: some-long-secret-string-at-least-64-chars-1234567890abcdef1234567890abcdef
 
+  # Rabit MQ configuration:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+    exchange:
+      name: book-saas-exchange
+
+    queue:
+      name:
+        book_creation: booking-creation-queue
+        book_cancellation: booking-cancellation-queue
+    routing:
+      key:
+       book_creation: booking-creation-routing-key
+       book_cancellation: booking-cancellation-routing-key
+
 server:
   port: ${PORT:8081}
 

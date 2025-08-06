@@ -15,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 public class UserBusinessServiceBookDto {
     private BusinessDto businessDto;
-    private OutputUserDto user;
     private List<ServiceDto> services;
     private List<BookDto> bookDtos;
 }
