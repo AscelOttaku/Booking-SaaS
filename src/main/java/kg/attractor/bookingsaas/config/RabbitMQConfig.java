@@ -25,11 +25,17 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.queue.name.book_cancellation}")
     private String bookCancellationQueueName;
 
+    @Value("${spring.rabbitmq.queue.name.reset_password}")
+    private String resetPasswordQueueName;
+
     @Value("${spring.rabbitmq.routing.key.book_creation}")
     private String bookCreationRoutingKey;
 
     @Value("${spring.rabbitmq.routing.key.book_cancellation}")
     private String bookCancellationRoutingKey;
+
+    @Value("${spring.rabbitmq.routing.key.reset_password}")
+    private String resetPasswordRoutingKey;
 
     @Bean
     public Queue bookCreationQueue() {
@@ -39,6 +45,11 @@ public class RabbitMQConfig {
     @Bean
     public Queue bookCancellationQueue() {
         return new Queue(bookCancellationQueueName);
+    }
+
+    @Bean
+    public Queue resetPasswordQueue() {
+        return new Queue(resetPasswordQueueName);
     }
 
     @Bean
@@ -58,6 +69,13 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(bookCancellationQueue())
                 .to(exchange())
                 .with(bookCancellationRoutingKey);
+    }
+
+    @Bean
+    public Binding resetPasswordBinding() {
+        return BindingBuilder.bind(resetPasswordQueue())
+                .to(exchange())
+                .with(resetPasswordRoutingKey);
     }
 
     @Bean

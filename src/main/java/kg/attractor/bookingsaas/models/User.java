@@ -51,6 +51,9 @@ public class User implements UserDetails {
     @Column(name = "logo")
     private String logo;
 
+    @Column(name = "reset_password_link")
+    private String resetPasswordLink;
+
     @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Book> books;

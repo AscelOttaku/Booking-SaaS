@@ -7,3 +7,6 @@ values (1,
         15),
        (2, 15),
        (3, 15);
+
+alter table USERS
+    add column if not exists reset_password_link varchar(255);

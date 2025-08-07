@@ -5,6 +5,7 @@ import kg.attractor.bookingsaas.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -58,4 +59,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "group by u.id " +
             "having count(b.id) >= 2")
     Page<UserBookQuantityDto> findUsersWithBooksQuantityAtLeastTwo(Pageable pageable);
+
+    @Modifying
+    @Query(value = "UPDATE USERS SET reset_password_link = :token WHERE email = :email", nativeQuery = true)
+    void setUserResetPasswordToken(String token, String email);
+
+    @Query("select u from User u where u.resetPasswordLink = :token")
+    Optional<User> findByResetPasswordToken(String token);
 }

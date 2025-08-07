@@ -61,4 +61,26 @@ public class EmailServiceImpl implements EmailService {
         helper.setText(content, true);
         mailSender.send(message);
     }
+
+    @Override
+    public void sendPasswordResetEmail(String toEmail, String link) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom(emailFrom);
+        helper.setTo(toEmail);
+
+        String subject = "Here is the link to reset your password";
+        String content = "<p>Hello,</p>"
+                + "<p>You have requested to reset your password.</p>"
+                + "<p>Click the link below to change your password:</p>"
+                + "<p><a href=\"" + link + "\">Change my password</a></p>"
+                + "<br>"
+                + "<p>Ignore this email if you do remember your password, "
+                + "or you have not made the request.</p>";
+
+        helper.setSubject(subject);
+        helper.setText(content, true);
+        mailSender.send(message);
+    }
 }

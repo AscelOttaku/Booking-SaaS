@@ -1,9 +1,12 @@
 package kg.attractor.bookingsaas.service.impl;
 
 import kg.attractor.bookingsaas.config.jwt.JwtService;
+import kg.attractor.bookingsaas.dto.PasswordToken;
+import kg.attractor.bookingsaas.dto.ResetPasswordRequest;
 import kg.attractor.bookingsaas.dto.auth.AuthenticationResponse;
 import kg.attractor.bookingsaas.dto.auth.SignInRequest;
 import kg.attractor.bookingsaas.dto.auth.SignUpRequest;
+import kg.attractor.bookingsaas.event.publisher.UserMessageProducer;
 import kg.attractor.bookingsaas.exceptions.AlreadyExistsException;
 import kg.attractor.bookingsaas.exceptions.InvalidPasswordException;
 import kg.attractor.bookingsaas.exceptions.NotFoundException;
@@ -15,8 +18,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +34,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final UserMessageProducer userMessageProducer;
 
     @Override
     public AuthenticationResponse authenticate(SignUpRequest request) {
@@ -68,5 +77,40 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String jwtToken = jwtService.generateToken(user.getEmail());
         log.info("Пользователь с почтой {} успешно вошел в систему", signInRequest.getEmail());
         return new AuthenticationResponse(jwtToken, user.getEmail(), user.getRole().getRoleName());
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRED)
+    @Override
+    public void makeResetPasswordLink(String email) {
+        String token = UUID.randomUUID().toString();
+        updateResetPasswordToken(token, email);
+
+        String resetPasswordLink = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/auth/reset-password-page")
+                .queryParam("token", token)
+                .toUriString();
+
+        var resetPasswordRequest = ResetPasswordRequest.builder()
+                .link(resetPasswordLink)
+                .email(email)
+                .build();
+        userMessageProducer.sendPasswordResetLink(resetPasswordRequest);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRED)
+    @Override
+    public void processResetPassword(PasswordToken passwordToken) {
+        var user = userRepository.findByResetPasswordToken(passwordToken.getToken())
+                .orElseThrow(() -> new NotFoundException("User not found by reset password token"));
+
+        user.setPassword(passwordEncoder.encode(passwordToken.getPassword()));
+        user.setResetPasswordLink(null);
+    }
+
+    private void updateResetPasswordToken(String token, String email) {
+        if (!userRepository.existsByEmail(email)) {
+            throw new NoSuchElementException("Email not found: " + email);
+        }
+        userRepository.setUserResetPasswordToken(token, email);
     }
 }
